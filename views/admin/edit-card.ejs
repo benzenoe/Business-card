@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= card ? 'Edit Card' : 'New Card' %> | Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="/admin" class="nav-brand">Bogen<span>.ai</span></a>
+    <div class="nav-links">
+      <span class="nav-badge">Admin</span>
+      <a href="/admin">← Dashboard</a>
+      <form method="POST" action="/logout" style="display:inline;">
+        <button type="submit" class="btn-logout"><i class="fas fa-sign-out-alt"></i> Logout</button>
+      </form>
+    </div>
+  </nav>
+
+  <div class="page">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title"><%= card ? 'Edit Card' : 'New Card' %></h1>
+        <% if (card) { %>
+          <a href="/<%= card.slug %>" target="_blank" class="preview-link">
+            <i class="fas fa-external-link-alt"></i> View live card
+          </a>
+        <% } %>
+      </div>
+    </div>
+
+    <% if (error) { %>
+      <div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> <%= error %></div>
+    <% } %>
+    <% if (success) { %>
+      <div class="alert alert-success"><i class="fas fa-check-circle"></i> <%= success %></div>
+    <% } %>
+
+    <form method="POST" action="<%= card ? '/admin/cards/' + card.id + '/edit' : '/admin/cards/new' %>">
+      <div class="form-card">
+
+        <!-- Account Info (only on create) -->
+        <% if (!card) { %>
+        <div class="form-section">
+          <div class="form-section-title"><i class="fas fa-user-circle"></i> Client Account</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="client_email">Client Login Email *</label>
+              <input type="email" id="client_email" name="client_email" required value="<%= clientEmail || '' %>" placeholder="client@example.com">
+            </div>
+            <div class="form-group">
+              <label for="client_password">Temporary Password *</label>
+              <input type="password" id="client_password" name="client_password" required placeholder="Set a temporary password">
+            </div>
+          </div>
+        </div>
+        <% } %>
+
+        <!-- Card URL -->
+        <div class="form-section">
+          <div class="form-section-title"><i class="fas fa-link"></i> Card URL</div>
+          <div class="form-grid cols-1">
+            <div class="form-group">
+              <label for="slug">URL Slug * (e.g. "john-smith" → yoursite.com/john-smith)</label>
+              <input type="text" id="slug" name="slug" required value="<%= card ? card.slug : '' %>" placeholder="john-smith">
+            </div>
+          </div>
+          <div class="toggle-row" style="margin-top:16px;">
+            <input type="checkbox" id="is_published" name="is_published" <%= (!card || card.is_published) ? 'checked' : '' %>>
+            <label for="is_published" style="text-transform:none; font-size:14px; font-weight:500;">Published (visible to public)</label>
+          </div>
+        </div>
+
+        <!-- Profile Info -->
+        <div class="form-section">
+          <div class="form-section-title"><i class="fas fa-id-badge"></i> Profile</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="name">Full Name</label>
+              <input type="text" id="name" name="name" value="<%= card ? (card.name || '') : '' %>" placeholder="John Smith">
+            </div>
+            <div class="form-group">
+              <label for="title">Job Title</label>
+              <input type="text" id="title" name="title" value="<%= card ? (card.title || '') : '' %>" placeholder="CEO & Founder">
+            </div>
+            <div class="form-group">
+              <label for="company">Company Name</label>
+              <input type="text" id="company" name="company" value="<%= card ? (card.company || '') : '' %>" placeholder="Bogen.ai">
+            </div>
+            <div class="form-group">
+              <label for="company_highlight">Company Highlight Text</label>
+              <input type="text" id="company_highlight" name="company_highlight" value="<%= card ? (card.company_highlight || '') : '' %>" placeholder=".ai (colored portion)">
+            </div>
+          </div>
+        </div>
+
+        <!-- Contact Info -->
+        <div class="form-section">
+          <div class="form-section-title"><i class="fas fa-address-book"></i> Contact</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" value="<%= card ? (card.email || '') : '' %>" placeholder="john@example.com">
+            </div>
+            <div class="form-group">
+              <label for="website">Website</label>
+              <input type="url" id="website" name="website" value="<%= card ? (card.website || '') : '' %>" placeholder="https://example.com">
+            </div>
+            <div class="form-group">
+              <label for="phone_us">US Phone</label>
+              <input type="tel" id="phone_us" name="phone_us" value="<%= card ? (card.phone_us || '') : '' %>" placeholder="(305) 491-6688">
+            </div>
+            <div class="form-group">
+              <label for="phone_intl">International / WhatsApp</label>
+              <input type="tel" id="phone_intl" name="phone_intl" value="<%= card ? (card.phone_intl || '') : '' %>" placeholder="+351 939 995 889">
+            </div>
+            <div class="form-group full">
+              <label for="location">Location</label>
+              <input type="text" id="location" name="location" value="<%= card ? (card.location || '') : '' %>" placeholder="Miami Beach, FL">
+            </div>
+          </div>
+        </div>
+
+        <!-- Social Links -->
+        <div class="form-section">
+          <div class="form-section-title"><i class="fas fa-share-alt"></i> Social Links</div>
+          <div class="form-grid cols-3">
+            <div class="form-group">
+              <label for="linkedin"><i class="fab fa-linkedin"></i> LinkedIn URL</label>
+              <input type="url" id="linkedin" name="linkedin" value="<%= card ? (card.linkedin || '') : '' %>" placeholder="https://linkedin.com/in/...">
+            </div>
+            <div class="form-group">
+              <label for="instagram"><i class="fab fa-instagram"></i> Instagram URL</label>
+              <input type="url" id="instagram" name="instagram" value="<%= card ? (card.instagram || '') : '' %>" placeholder="https://instagram.com/...">
+            </div>
+            <div class="form-group">
+              <label for="twitter"><i class="fab fa-x-twitter"></i> X / Twitter URL</label>
+              <input type="url" id="twitter" name="twitter" value="<%= card ? (card.twitter || '') : '' %>" placeholder="https://x.com/...">
+            </div>
+            <div class="form-group">
+              <label for="facebook"><i class="fab fa-facebook"></i> Facebook URL</label>
+              <input type="url" id="facebook" name="facebook" value="<%= card ? (card.facebook || '') : '' %>" placeholder="https://facebook.com/...">
+            </div>
+            <div class="form-group">
+              <label for="github"><i class="fab fa-github"></i> GitHub URL</label>
+              <input type="url" id="github" name="github" value="<%= card ? (card.github || '') : '' %>" placeholder="https://github.com/...">
+            </div>
+            <div class="form-group">
+              <label for="youtube"><i class="fab fa-youtube"></i> YouTube URL</label>
+              <input type="url" id="youtube" name="youtube" value="<%= card ? (card.youtube || '') : '' %>" placeholder="https://youtube.com/...">
+            </div>
+            <div class="form-group">
+              <label for="tiktok"><i class="fab fa-tiktok"></i> TikTok URL</label>
+              <input type="url" id="tiktok" name="tiktok" value="<%= card ? (card.tiktok || '') : '' %>" placeholder="https://tiktok.com/@...">
+            </div>
+          </div>
+        </div>
+
+        <!-- Branding Footer -->
+        <div class="form-section">
+          <div class="form-section-title"><i class="fas fa-trademark"></i> Footer Branding</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="brand_name">Brand Name</label>
+              <input type="text" id="brand_name" name="brand_name" value="<%= card ? (card.brand_name || '') : '' %>" placeholder="Bogen.ai">
+            </div>
+            <div class="form-group">
+              <label for="brand_tagline">Tagline</label>
+              <input type="text" id="brand_tagline" name="brand_tagline" value="<%= card ? (card.brand_tagline || '') : '' %>" placeholder="AI Automation Services">
+            </div>
+          </div>
+        </div>
+
+        <!-- Password update (edit only) -->
+        <% if (card) { %>
+        <div class="form-section">
+          <div class="form-section-title"><i class="fas fa-key"></i> Update Client Password</div>
+          <div class="form-grid cols-1">
+            <div class="form-group">
+              <label for="new_password">New Password (leave blank to keep current)</label>
+              <input type="password" id="new_password" name="new_password" placeholder="Enter new password to change">
+            </div>
+          </div>
+        </div>
+        <% } %>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save"></i> <%= card ? 'Save Changes' : 'Create Card' %>
+          </button>
+          <a href="/admin" class="btn btn-secondary">Cancel</a>
+          <% if (card) { %>
+            <a href="/<%= card.slug %>" target="_blank" class="btn btn-secondary" style="margin-left:auto;">
+              <i class="fas fa-external-link-alt"></i> View Card
+            </a>
+          <% } %>
+        </div>
+
+      </div>
+    </form>
+  </div>
+</body>
+</html>

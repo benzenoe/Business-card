@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>No Card | Business Card Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="/dashboard" class="nav-brand">Bogen<span>.ai</span></a>
+    <div class="nav-links">
+      <form method="POST" action="/logout" style="display:inline;">
+        <button type="submit" class="btn-logout">Logout</button>
+      </form>
+    </div>
+  </nav>
+  <div class="page">
+    <div class="empty-state">
+      <i class="fas fa-id-card"></i>
+      <h3>No card assigned yet</h3>
+      <p>Your business card hasn't been set up. Please contact your administrator.</p>
+    </div>
+  </div>
+</body>
+</html>

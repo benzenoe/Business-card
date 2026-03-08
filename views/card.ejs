@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="<%= card.secondary_color || '#1a3e5c' %>">
+  <title><%= card.name %><% if (card.company) { %> | <%= card.company %><% } %></title>
+  <meta name="description" content="<%= card.name %><% if (card.title) { %> - <%= card.title %><% } %><% if (card.company) { %> at <%= card.company %><% } %>">
+
+  <meta property="og:title" content="<%= card.name %><% if (card.company) { %> | <%= card.company %><% } %>">
+  <meta property="og:description" content="<% if (card.title) { %><%= card.title %><% } %>">
+  <meta property="og:type" content="profile">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <style>
+    :root {
+      --navy: <%= card.secondary_color || '#1a3e5c' %>;
+      --bright-blue: <%= card.primary_color || '#00a8e1' %>;
+      --bg-start: <%= card.bg_color_start || '#1a3e5c' %>;
+      --bg-end: <%= card.bg_color_end || '#0d2233' %>;
+      --accent: <%= card.accent_bar_color || '#00a8e1' %>;
+      --white: #ffffff;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: linear-gradient(180deg, var(--bg-start) 0%, var(--bg-end) 100%);
+      min-height: 100vh;
+      color: var(--white);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 420px;
+      margin: 0 auto;
+      padding: 40px 24px 60px;
+      text-align: center;
+    }
+
+    .accent-bar {
+      position: fixed;
+      left: 0; top: 0;
+      width: 4px; height: 100%;
+      background: var(--accent);
+    }
+
+    /* Brand Header */
+    .brand-header { margin-bottom: 24px; }
+    .brand-logo { font-size: 32px; font-weight: 700; letter-spacing: 0.02em; color: var(--white); }
+    .brand-logo span { color: var(--bright-blue); }
+
+    /* Profile */
+    .profile-section { margin-bottom: 32px; }
+
+    .headshot {
+      width: 160px; height: 160px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid var(--bright-blue);
+      margin-bottom: 24px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      background: rgba(255,255,255,0.1);
+    }
+
+    .headshot-placeholder {
+      width: 160px; height: 160px;
+      border-radius: 50%;
+      border: 4px solid var(--bright-blue);
+      margin: 0 auto 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 64px;
+      color: var(--bright-blue);
+      background: rgba(255,255,255,0.05);
+    }
+
+    .name { font-size: 28px; font-weight: 300; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
+    .title { font-size: 14px; font-weight: 500; letter-spacing: 0.05em; color: var(--bright-blue); text-transform: uppercase; margin-bottom: 4px; }
+    .company { font-size: 16px; font-weight: 600; letter-spacing: 0.03em; }
+    .company span { color: var(--bright-blue); }
+
+    .divider { width: 60px; height: 3px; background: var(--bright-blue); margin: 32px auto; }
+
+    /* Contact */
+    .contact-info { margin-bottom: 32px; }
+
+    .contact-item {
+      display: flex; align-items: center; justify-content: center;
+      gap: 12px; margin-bottom: 16px; font-size: 16px; font-weight: 500;
+    }
+
+    .contact-item i { color: var(--bright-blue); width: 24px; font-size: 18px; }
+    .contact-item a, .contact-item span { color: var(--white); text-decoration: none; transition: color 0.2s; }
+    .contact-item a:hover { color: var(--bright-blue); }
+
+    .contact-label { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--white); display: block; margin-bottom: 6px; }
+
+    .contact-item-stacked { display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; }
+    .contact-item-stacked .contact-row { display: flex; align-items: center; gap: 12px; }
+    .contact-item-stacked .contact-row a { font-size: 18px; font-weight: 500; color: var(--white); text-decoration: none; transition: color 0.2s; }
+    .contact-item-stacked .contact-row a:hover { color: var(--bright-blue); }
+
+    /* Buttons */
+    .cta-button {
+      display: block; width: 100%; padding: 18px 32px;
+      background: var(--bright-blue); color: var(--white);
+      border: none; border-radius: 4px;
+      font-family: 'Montserrat', sans-serif; font-size: 14px;
+      font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
+      cursor: pointer; transition: all 0.2s; margin-bottom: 16px; text-decoration: none;
+    }
+    .cta-button:hover { filter: brightness(0.9); transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,168,225,0.4); }
+    .cta-button i { margin-right: 10px; }
+
+    .cta-secondary {
+      display: block; width: 100%; padding: 16px 32px;
+      background: transparent; color: var(--white);
+      border: 2px solid var(--bright-blue); border-radius: 4px;
+      font-family: 'Montserrat', sans-serif; font-size: 13px;
+      font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+      cursor: pointer; transition: all 0.2s; margin-bottom: 16px;
+      text-decoration: none; text-align: center;
+    }
+    .cta-secondary:hover { background: var(--bright-blue); }
+    .cta-secondary i { margin-right: 10px; }
+
+    /* Social */
+    .social-links { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; margin: 32px 0; }
+
+    .social-link {
+      width: 46px; height: 46px; border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--white); font-size: 18px; text-decoration: none;
+      transition: all 0.2s; border: 1px solid rgba(255,255,255,0.2);
+    }
+    .social-link:hover { background: var(--bright-blue); border-color: var(--bright-blue); transform: translateY(-3px); }
+
+    /* QR */
+    .qr-section { margin-top: 40px; padding-top: 32px; border-top: 1px solid rgba(255,255,255,0.1); }
+    .qr-label { font-size: 11px; font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase; opacity: 0.7; margin-bottom: 16px; }
+    #qrcode { display: inline-block; padding: 12px; background: var(--white); border-radius: 8px; }
+
+    /* Footer */
+    .branding { margin-top: 40px; padding-top: 24px; }
+    .bogen-logo { font-size: 24px; font-weight: 700; letter-spacing: 0.02em; margin-bottom: 8px; }
+    .bogen-logo span { color: var(--bright-blue); }
+    .tagline { font-size: 11px; font-weight: 400; letter-spacing: 0.15em; text-transform: uppercase; opacity: 0.6; }
+
+    /* Toast */
+    .toast {
+      position: fixed; bottom: 30px; left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--bright-blue); color: var(--white);
+      padding: 14px 28px; border-radius: 8px;
+      font-family: 'Montserrat', sans-serif; font-size: 14px; font-weight: 500;
+      z-index: 1000; opacity: 0; transition: all 0.3s ease;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    @media (max-width: 360px) {
+      .container { padding: 32px 20px 48px; }
+      .name { font-size: 24px; }
+      .headshot, .headshot-placeholder { width: 140px; height: 140px; }
+      .social-links { gap: 10px; }
+      .social-link { width: 42px; height: 42px; font-size: 16px; }
+    }
+
+    @media (display-mode: standalone) {
+      body { padding-top: env(safe-area-inset-top); }
+    }
+  </style>
+</head>
+<body>
+  <div class="accent-bar"></div>
+
+  <div class="container">
+
+    <!-- Brand Header -->
+    <% if (card.brand_name) { %>
+      <div class="brand-header">
+        <% if (card.company_highlight && card.brand_name.includes(card.company_highlight)) {
+          const parts = card.brand_name.split(card.company_highlight);
+        %>
+          <div class="brand-logo"><%= parts[0] %><span><%= card.company_highlight %></span><%= parts[1] || '' %></div>
+        <% } else { %>
+          <div class="brand-logo"><%= card.brand_name %></div>
+        <% } %>
+      </div>
+    <% } %>
+
+    <!-- Profile -->
+    <section class="profile-section">
+      <% if (card.headshot_url) { %>
+        <img src="<%= card.headshot_url %>" alt="<%= card.name %>" class="headshot">
+      <% } else { %>
+        <div class="headshot-placeholder"><i class="fas fa-user"></i></div>
+      <% } %>
+
+      <h1 class="name"><%= card.name %></h1>
+      <% if (card.title) { %><p class="title"><%= card.title %></p><% } %>
+      <% if (card.company) { %>
+        <p class="company">
+          <% if (card.company_highlight && card.company.includes(card.company_highlight)) {
+            const parts = card.company.split(card.company_highlight);
+          %>
+            <%= parts[0] %><span><%= card.company_highlight %></span><%= parts[1] || '' %>
+          <% } else { %>
+            <%= card.company %>
+          <% } %>
+        </p>
+      <% } %>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Contact -->
+    <section class="contact-info">
+      <% if (card.phone_us) { %>
+        <div class="contact-item-stacked">
+          <span class="contact-label">US Mobile</span>
+          <div class="contact-row">
+            <i class="fas fa-phone"></i>
+            <a href="tel:<%= card.phone_us.replace(/\D/g,'') %>"><%= card.phone_us %></a>
+          </div>
+        </div>
+      <% } %>
+      <% if (card.phone_intl) { %>
+        <div class="contact-item-stacked">
+          <span class="contact-label">International / WhatsApp</span>
+          <div class="contact-row">
+            <i class="fab fa-whatsapp"></i>
+            <a href="https://wa.me/<%= card.phone_intl.replace(/\D/g,'') %>"><%= card.phone_intl %></a>
+          </div>
+        </div>
+      <% } %>
+      <% if (card.email) { %>
+        <div class="contact-item">
+          <i class="fas fa-envelope"></i>
+          <a href="mailto:<%= card.email %>"><%= card.email %></a>
+        </div>
+      <% } %>
+      <% if (card.website) { %>
+        <div class="contact-item">
+          <i class="fas fa-globe"></i>
+          <a href="<%= card.website %>" target="_blank"><%= card.website.replace(/^https?:\/\//, '') %></a>
+        </div>
+      <% } %>
+      <% if (card.location) { %>
+        <div class="contact-item">
+          <i class="fas fa-location-dot"></i>
+          <span><%= card.location %></span>
+        </div>
+      <% } %>
+    </section>
+
+    <!-- Save Contact -->
+    <button class="cta-button" onclick="downloadVCard()">
+      <i class="fas fa-user-plus"></i>Save Contact
+    </button>
+
+    <!-- Send My Card -->
+    <button class="cta-secondary" onclick="sendCard()">
+      <i class="fas fa-paper-plane"></i>Send My Card
+    </button>
+
+    <!-- Social Links -->
+    <% const socials = [
+      { key: 'linkedin', icon: 'fab fa-linkedin-in', label: 'LinkedIn' },
+      { key: 'instagram', icon: 'fab fa-instagram', label: 'Instagram' },
+      { key: 'twitter', icon: 'fab fa-x-twitter', label: 'X/Twitter' },
+      { key: 'facebook', icon: 'fab fa-facebook-f', label: 'Facebook' },
+      { key: 'github', icon: 'fab fa-github', label: 'GitHub' },
+      { key: 'youtube', icon: 'fab fa-youtube', label: 'YouTube' },
+      { key: 'tiktok', icon: 'fab fa-tiktok', label: 'TikTok' },
+      { key: 'website', icon: 'fas fa-globe', label: 'Website' }
+    ].filter(s => card[s.key]); %>
+
+    <% if (socials.length > 0) { %>
+      <div class="social-links">
+        <% socials.forEach(s => { %>
+          <a href="<%= card[s.key] %>" target="_blank" class="social-link" aria-label="<%= s.label %>">
+            <i class="<%= s.icon %>"></i>
+          </a>
+        <% }) %>
+      </div>
+    <% } %>
+
+    <!-- QR Code -->
+    <section class="qr-section">
+      <p class="qr-label">Scan to View Card</p>
+      <div id="qrcode"></div>
+    </section>
+
+    <!-- Footer Branding -->
+    <% if (card.brand_name) { %>
+      <div class="branding">
+        <% if (card.company_highlight && card.brand_name.includes(card.company_highlight)) {
+          const parts = card.brand_name.split(card.company_highlight);
+        %>
+          <div class="bogen-logo"><%= parts[0] %><span><%= card.company_highlight %></span><%= parts[1] || '' %></div>
+        <% } else { %>
+          <div class="bogen-logo"><%= card.brand_name %></div>
+        <% } %>
+        <% if (card.brand_tagline) { %><p class="tagline"><%= card.brand_tagline %></p><% } %>
+      </div>
+    <% } %>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    function sendCard() {
+      const url = window.location.href;
+      const msg = 'Hey! Here\'s my digital business card: ' + url;
+      window.location.href = 'sms:?&body=' + encodeURIComponent(msg);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      new QRCode(document.getElementById('qrcode'), {
+        text: window.location.href,
+        width: 120, height: 120,
+        colorDark: '<%= card.secondary_color || "#1a3e5c" %>',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.H
+      });
+    });
+
+    function downloadVCard() {
+      const v = `BEGIN:VCARD
+VERSION:3.0
+N:<%= (card.name || '').split(' ').reverse().join(';') %>;;;
+FN:<%= card.name || '' %>
+<% if (card.company) { %>ORG:<%= card.company %><% } %>
+<% if (card.title) { %>TITLE:<%= card.title %><% } %>
+<% if (card.phone_us) { %>TEL;TYPE=CELL:<%= card.phone_us %><% } %>
+<% if (card.phone_intl) { %>TEL;TYPE=WORK:<%= card.phone_intl %><% } %>
+<% if (card.email) { %>EMAIL;TYPE=WORK:<%= card.email %><% } %>
+<% if (card.location) { %>ADR;TYPE=WORK:;;<%= card.location %>;;;;<% } %>
+<% if (card.website) { %>URL:<%= card.website %><% } %>
+<% if (card.linkedin) { %>X-SOCIALPROFILE;TYPE=linkedin:<%= card.linkedin %><% } %>
+<% if (card.instagram) { %>X-SOCIALPROFILE;TYPE=instagram:<%= card.instagram %><% } %>
+<% if (card.twitter) { %>X-SOCIALPROFILE;TYPE=twitter:<%= card.twitter %><% } %>
+END:VCARD`;
+
+      const blob = new Blob([v], { type: 'text/vcard;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = '<%= (card.name || "contact").replace(/\s+/g, "_") %>.vcf';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('Contact saved!');
+    }
+  </script>
+</body>
+</html>

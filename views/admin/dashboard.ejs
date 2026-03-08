@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard | Business Card Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="/admin" class="nav-brand">Bogen<span>.ai</span></a>
+    <div class="nav-links">
+      <span class="nav-badge">Admin</span>
+      <span style="color:rgba(255,255,255,0.6); font-size:13px;"><%= user.email %></span>
+      <form method="POST" action="/logout" style="display:inline;">
+        <button type="submit" class="btn-logout"><i class="fas fa-sign-out-alt"></i> Logout</button>
+      </form>
+    </div>
+  </nav>
+
+  <div class="page">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Business Cards</h1>
+        <p class="page-subtitle"><%= cards.length %> card<%= cards.length !== 1 ? 's' : '' %> total</p>
+      </div>
+      <a href="/admin/cards/new" class="btn btn-primary">
+        <i class="fas fa-plus"></i> New Card
+      </a>
+    </div>
+
+    <% if (cards.length === 0) { %>
+      <div class="empty-state">
+        <i class="fas fa-id-card"></i>
+        <h3>No cards yet</h3>
+        <p style="margin-bottom:20px;">Create your first digital business card for a client.</p>
+        <a href="/admin/cards/new" class="btn btn-primary"><i class="fas fa-plus"></i> Create First Card</a>
+      </div>
+    <% } else { %>
+      <div class="cards-grid">
+        <% cards.forEach(card => { %>
+          <div class="card-tile">
+            <div class="card-tile-header">
+              <div class="card-tile-slug">/<%= card.slug %></div>
+              <div class="card-tile-name"><%= card.name || 'Unnamed Card' %></div>
+              <div class="card-tile-title"><%= card.title || '' %></div>
+            </div>
+            <div class="card-tile-body">
+              <div class="card-tile-email"><i class="fas fa-envelope" style="margin-right:6px;"></i><%= card.email %></div>
+              <div>
+                <span class="card-status <%= card.is_published ? 'published' : 'unpublished' %>">
+                  <i class="fas fa-circle" style="font-size:8px;"></i>
+                  <%= card.is_published ? 'Published' : 'Draft' %>
+                </span>
+              </div>
+              <div class="card-tile-actions">
+                <a href="/admin/cards/<%= card.id %>/edit" class="btn btn-secondary btn-sm">
+                  <i class="fas fa-edit"></i> Edit
+                </a>
+                <a href="/<%= card.slug %>" target="_blank" class="btn btn-secondary btn-sm">
+                  <i class="fas fa-eye"></i> View
+                </a>
+                <form method="POST" action="/admin/cards/<%= card.id %>/delete" onsubmit="return confirm('Delete this card and client account? This cannot be undone.')">
+                  <button type="submit" class="btn btn-danger btn-sm">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+  </div>
+</body>
+</html>
