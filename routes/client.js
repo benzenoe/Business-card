@@ -41,7 +41,8 @@ router.post('/edit', async (req, res) => {
     name, title, company, company_highlight,
     email, phone_us, phone_intl, location,
     linkedin, instagram, twitter, facebook, github, youtube, tiktok,
-    brand_name, brand_tagline, logo_invert, logo_size
+    brand_name, brand_tagline, logo_invert, logo_size,
+    primary_color, secondary_color, bg_color_start, bg_color_end, accent_bar_color
   } = req.body;
 
   const emails = parseEmails(req.body);
@@ -55,14 +56,16 @@ router.post('/edit', async (req, res) => {
         email=$5, phone_us=$6, phone_intl=$7, location=$8,
         linkedin=$9, instagram=$10, twitter=$11, facebook=$12, github=$13,
         youtube=$14, tiktok=$15, brand_name=$16, brand_tagline=$17, logo_invert=$18,
-        logo_size=$19, emails=$20, phones=$21, websites=$22
-      WHERE user_id=$23
+        logo_size=$19, emails=$20, phones=$21,
+        websites=$22, primary_color=$23, secondary_color=$24, bg_color_start=$25, bg_color_end=$26, accent_bar_color=$27
+      WHERE user_id=$28
     `, [
       name, title, company, company_highlight,
       email, phone_us, phone_intl, location,
       linkedin, instagram, twitter, facebook, github, youtube, tiktok,
       brand_name, brand_tagline, logo_invert || '', parseInt(logo_size) || 60,
       JSON.stringify(emails), JSON.stringify(phones), JSON.stringify(websites),
+      primary_color, secondary_color, bg_color_start, bg_color_end, accent_bar_color,
       req.user.id
     ]);
 

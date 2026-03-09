@@ -82,14 +82,16 @@ router.post('/cards/new', async (req, res) => {
         user_id, slug, name, title, company, company_highlight,
         email, phone_us, phone_intl, location,
         linkedin, instagram, twitter, facebook, github, youtube, tiktok,
-        brand_name, brand_tagline, is_published, emails, phones, websites
-      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23)
+        brand_name, brand_tagline, is_published, emails, phones, websites,
+        primary_color, secondary_color, bg_color_start, bg_color_end, accent_bar_color
+      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28)
     `, [
       userId, slug, name, title, company, company_highlight,
       email, phone_us, phone_intl, location,
       linkedin, instagram, twitter, facebook, github, youtube, tiktok,
       brand_name, brand_tagline, is_published === 'on',
-      JSON.stringify(emails), JSON.stringify(phones), JSON.stringify(websites)
+      JSON.stringify(emails), JSON.stringify(phones), JSON.stringify(websites),
+      null, null, null, null, null
     ]);
 
     res.redirect('/admin');
@@ -118,7 +120,8 @@ router.post('/cards/:id/edit', async (req, res) => {
     slug, name, title, company, company_highlight,
     email, phone_us, phone_intl, location,
     linkedin, instagram, twitter, facebook, github, youtube, tiktok,
-    brand_name, brand_tagline, is_published, logo_invert, logo_size, new_password
+    brand_name, brand_tagline, is_published, logo_invert, logo_size, new_password,
+    primary_color, secondary_color, bg_color_start, bg_color_end, accent_bar_color
   } = req.body;
 
   const emails = parseEmails(req.body);
@@ -132,15 +135,17 @@ router.post('/cards/:id/edit', async (req, res) => {
         email=$6, phone_us=$7, phone_intl=$8, location=$9,
         linkedin=$10, instagram=$11, twitter=$12, facebook=$13, github=$14,
         youtube=$15, tiktok=$16, brand_name=$17, brand_tagline=$18, is_published=$19,
-        logo_invert=$20, logo_size=$21, emails=$22, phones=$23, websites=$24
-      WHERE id=$25
+        logo_invert=$20, logo_size=$21, emails=$22, phones=$23,
+        websites=$24, primary_color=$25, secondary_color=$26, bg_color_start=$27, bg_color_end=$28, accent_bar_color=$29
+      WHERE id=$30
     `, [
       slug, name, title, company, company_highlight,
       email, phone_us, phone_intl, location,
       linkedin, instagram, twitter, facebook, github, youtube, tiktok,
       brand_name, brand_tagline, is_published === 'on', logo_invert || '',
       parseInt(logo_size) || 60, JSON.stringify(emails), JSON.stringify(phones),
-      JSON.stringify(websites), req.params.id
+      JSON.stringify(websites), primary_color, secondary_color, bg_color_start, bg_color_end,
+      accent_bar_color, req.params.id
     ]);
 
     // Optionally update client password
