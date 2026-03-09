@@ -260,6 +260,7 @@
     .upload-status.success { color:#28a745; }
     .upload-status.error { color:#dc3545; }
     .upload-status.loading { color:#00a8e1; }
+    .logo-invert-preview { background:#1a3e5c; border-radius:8px; padding:8px; display:inline-block; }
   </style>
 
   <script>
@@ -297,6 +298,32 @@
         statusEl.className = 'upload-status error';
       }
     }
+
+    // Logo invert preview
+    function applyLogoInvert() {
+      const checkbox = document.getElementById('logo_invert');
+      const preview = document.getElementById('logo-preview');
+      if (!preview || preview.tagName !== 'IMG') return;
+      if (checkbox.checked) {
+        preview.style.filter = 'invert(1)';
+        preview.closest('.upload-area').querySelector('.logo-bg') && null;
+        preview.parentElement.style.background = '#1a3e5c';
+        preview.parentElement.style.borderRadius = '8px';
+        preview.parentElement.style.padding = '8px';
+      } else {
+        preview.style.filter = '';
+        preview.parentElement.style.background = '';
+        preview.parentElement.style.padding = '';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const cb = document.getElementById('logo_invert');
+      if (cb) {
+        cb.addEventListener('change', applyLogoInvert);
+        applyLogoInvert(); // apply on load if already checked
+      }
+    });
   </script>
 </body>
 </html>
