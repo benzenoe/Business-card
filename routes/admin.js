@@ -1,8 +1,11 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
+const multer = require('multer');
 const db = require('../db');
+const { uploadImage } = require('../lib/cloudinary');
 const { verifyToken, requireAdmin } = require('../middleware/auth');
 const router = express.Router();
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
 
 router.use(verifyToken, requireAdmin);
 
@@ -137,6 +140,32 @@ router.post('/cards/:id/delete', async (req, res) => {
     await db.query('DELETE FROM users WHERE id=$1', [card.rows[0].user_id]);
   }
   res.redirect('/admin');
+});
+
+// POST /admin/cards/:id/upload-headshot
+router.post('/cards/:id/upload-headshot', upload.single('headshot'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No file provided' });
+    const url = await uploadImage(req.file.buffer, 'business-cards/headshots', `headshot-${req.params.id}`);
+    await db.query('UPDATE cards SET headshot_url=$1 WHERE id=$2', [url, req.params.id]);
+    res.json({ url });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Upload failed' });
+  }
+});
+
+// POST /admin/cards/:id/upload-logo
+router.post('/cards/:id/upload-logo', upload.single('logo'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No file provided' });
+    const url = await uploadImage(req.file.buffer, 'business-cards/logos', `logo-${req.params.id}`);
+    await db.query('UPDATE cards SET logo_url=$1 WHERE id=$2', [url, req.params.id]);
+    res.json({ url });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Upload failed' });
+  }
 });
 
 module.exports = router;

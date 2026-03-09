@@ -188,14 +188,18 @@
   <div class="container">
 
     <!-- Brand Header -->
-    <% if (card.brand_name) { %>
+    <% if (card.logo_url || card.brand_name) { %>
       <div class="brand-header">
-        <% if (card.company_highlight && card.brand_name.includes(card.company_highlight)) {
-          const parts = card.brand_name.split(card.company_highlight);
-        %>
-          <div class="brand-logo"><%= parts[0] %><span><%= card.company_highlight %></span><%= parts[1] || '' %></div>
-        <% } else { %>
-          <div class="brand-logo"><%= card.brand_name %></div>
+        <% if (card.logo_url) { %>
+          <img src="<%= card.logo_url %>" alt="<%= card.brand_name || 'Logo' %>" style="max-height:60px; max-width:200px; object-fit:contain;">
+        <% } else if (card.brand_name) { %>
+          <% if (card.company_highlight && card.brand_name.includes(card.company_highlight)) {
+            const parts = card.brand_name.split(card.company_highlight);
+          %>
+            <div class="brand-logo"><%= parts[0] %><span><%= card.company_highlight %></span><%= parts[1] || '' %></div>
+          <% } else { %>
+            <div class="brand-logo"><%= card.brand_name %></div>
+          <% } %>
         <% } %>
       </div>
     <% } %>

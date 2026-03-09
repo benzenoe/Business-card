@@ -1,7 +1,10 @@
 const express = require('express');
+const multer = require('multer');
 const db = require('../db');
+const { uploadImage } = require('../lib/cloudinary');
 const { verifyToken } = require('../middleware/auth');
 const router = express.Router();
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
 
 router.use(verifyToken);
 
@@ -43,6 +46,36 @@ router.post('/edit', async (req, res) => {
     console.error(err);
     const result = await db.query('SELECT * FROM cards WHERE user_id=$1', [req.user.id]);
     res.render('client/dashboard', { card: result.rows[0], user: req.user, error: 'Error saving changes.', success: null });
+  }
+});
+
+// POST /dashboard/upload-headshot
+router.post('/upload-headshot', upload.single('headshot'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No file provided' });
+    const card = await db.query('SELECT id FROM cards WHERE user_id=$1', [req.user.id]);
+    if (!card.rows[0]) return res.status(404).json({ error: 'Card not found' });
+    const url = await uploadImage(req.file.buffer, 'business-cards/headshots', `headshot-${card.rows[0].id}`);
+    await db.query('UPDATE cards SET headshot_url=$1 WHERE user_id=$2', [url, req.user.id]);
+    res.json({ url });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Upload failed' });
+  }
+});
+
+// POST /dashboard/upload-logo
+router.post('/upload-logo', upload.single('logo'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No file provided' });
+    const card = await db.query('SELECT id FROM cards WHERE user_id=$1', [req.user.id]);
+    if (!card.rows[0]) return res.status(404).json({ error: 'Card not found' });
+    const url = await uploadImage(req.file.buffer, 'business-cards/logos', `logo-${card.rows[0].id}`);
+    await db.query('UPDATE cards SET logo_url=$1 WHERE user_id=$2', [url, req.user.id]);
+    res.json({ url });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Upload failed' });
   }
 });
 
