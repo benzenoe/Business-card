@@ -6,6 +6,19 @@ const { verifyToken } = require('../middleware/auth');
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
 
+function parseEmails(body) {
+  const labels = [].concat(body.email_label || []);
+  const values = [].concat(body.email_value || []);
+  return labels.map((l, i) => ({ label: l, value: values[i] })).filter(e => e.value);
+}
+
+function parsePhones(body) {
+  const labels = [].concat(body.phone_label || []);
+  const values = [].concat(body.phone_value || []);
+  const whatsapps = [].concat(body.phone_whatsapp || []);
+  return labels.map((l, i) => ({ label: l, value: values[i], whatsapp: whatsapps[i] === 'on' })).filter(p => p.value);
+}
+
 router.use(verifyToken);
 
 // GET /dashboard
@@ -25,6 +38,9 @@ router.post('/edit', async (req, res) => {
     brand_name, brand_tagline, logo_invert, logo_size
   } = req.body;
 
+  const emails = parseEmails(req.body);
+  const phones = parsePhones(req.body);
+
   try {
     await db.query(`
       UPDATE cards SET
@@ -32,13 +48,14 @@ router.post('/edit', async (req, res) => {
         email=$5, phone_us=$6, phone_intl=$7, website=$8, location=$9,
         linkedin=$10, instagram=$11, twitter=$12, facebook=$13, github=$14,
         youtube=$15, tiktok=$16, brand_name=$17, brand_tagline=$18, logo_invert=$19,
-        logo_size=$20
-      WHERE user_id=$21
+        logo_size=$20, emails=$21, phones=$22
+      WHERE user_id=$23
     `, [
       name, title, company, company_highlight,
       email, phone_us, phone_intl, website, location,
       linkedin, instagram, twitter, facebook, github, youtube, tiktok,
       brand_name, brand_tagline, logo_invert || '', parseInt(logo_size) || 60,
+      JSON.stringify(emails), JSON.stringify(phones),
       req.user.id
     ]);
 

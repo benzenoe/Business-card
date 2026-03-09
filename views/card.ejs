@@ -239,30 +239,30 @@
 
     <!-- Contact -->
     <section class="contact-info">
-      <% if (card.phone_us) { %>
+      <% const cardPhones = card.phones ? (typeof card.phones === 'string' ? JSON.parse(card.phones) : card.phones) : []; %>
+      <% cardPhones.forEach(p => { %>
         <div class="contact-item-stacked">
-          <span class="contact-label">US Mobile</span>
+          <span class="contact-label"><%= p.label %></span>
           <div class="contact-row">
-            <i class="fas fa-phone"></i>
-            <a href="tel:<%= card.phone_us.replace(/\D/g,'') %>"><%= card.phone_us %></a>
+            <% if (p.whatsapp) { %>
+              <i class="fab fa-whatsapp"></i>
+              <a href="https://wa.me/<%= (p.value || '').replace(/\D/g,'') %>"><%= p.value %></a>
+            <% } else { %>
+              <i class="fas fa-phone"></i>
+              <a href="tel:<%= (p.value || '').replace(/\D/g,'') %>"><%= p.value %></a>
+            <% } %>
           </div>
         </div>
-      <% } %>
-      <% if (card.phone_intl) { %>
-        <div class="contact-item-stacked">
-          <span class="contact-label">International / WhatsApp</span>
-          <div class="contact-row">
-            <i class="fab fa-whatsapp"></i>
-            <a href="https://wa.me/<%= card.phone_intl.replace(/\D/g,'') %>"><%= card.phone_intl %></a>
-          </div>
-        </div>
-      <% } %>
-      <% if (card.email) { %>
+      <% }) %>
+
+      <% const cardEmails = card.emails ? (typeof card.emails === 'string' ? JSON.parse(card.emails) : card.emails) : []; %>
+      <% cardEmails.forEach(e => { %>
         <div class="contact-item">
           <i class="fas fa-envelope"></i>
-          <a href="mailto:<%= card.email %>"><%= card.email %></a>
+          <a href="mailto:<%= e.value %>"><%= e.value %></a>
         </div>
-      <% } %>
+      <% }) %>
+
       <% if (card.website) { %>
         <div class="contact-item">
           <i class="fas fa-globe"></i>
@@ -333,6 +333,9 @@
   <div class="toast" id="toast"></div>
 
   <script>
+    const cardPhones = <%- JSON.stringify(card.phones || []) %>;
+    const cardEmails = <%- JSON.stringify(card.emails || []) %>;
+
     function showToast(msg) {
       const t = document.getElementById('toast');
       t.textContent = msg;
@@ -363,9 +366,8 @@ N:<%= (card.name || '').split(' ').reverse().join(';') %>;;;
 FN:<%= card.name || '' %>
 <% if (card.company) { %>ORG:<%= card.company %><% } %>
 <% if (card.title) { %>TITLE:<%= card.title %><% } %>
-<% if (card.phone_us) { %>TEL;TYPE=CELL:<%= card.phone_us %><% } %>
-<% if (card.phone_intl) { %>TEL;TYPE=WORK:<%= card.phone_intl %><% } %>
-<% if (card.email) { %>EMAIL;TYPE=WORK:<%= card.email %><% } %>
+${cardPhones.map(p => `TEL;TYPE=${p.whatsapp ? 'CELL' : 'WORK'}:${p.value}`).join('\n')}
+${cardEmails.map(e => `EMAIL;TYPE=WORK:${e.value}`).join('\n')}
 <% if (card.location) { %>ADR;TYPE=WORK:;;<%= card.location %>;;;;<% } %>
 <% if (card.website) { %>URL:<%= card.website %><% } %>
 <% if (card.linkedin) { %>X-SOCIALPROFILE;TYPE=linkedin:<%= card.linkedin %><% } %>

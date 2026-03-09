@@ -193,24 +193,66 @@
           <div class="form-section-title"><i class="fas fa-address-book"></i> Contact</div>
           <div class="form-grid">
             <div class="form-group">
-              <label for="email">Email</label>
-              <input type="email" id="email" name="email" value="<%= card ? (card.email || '') : '' %>" placeholder="john@example.com">
+              <label>Website</label>
+              <input type="url" name="website" value="<%= card ? (card.website || '') : '' %>" placeholder="https://example.com">
             </div>
             <div class="form-group">
-              <label for="website">Website</label>
-              <input type="url" id="website" name="website" value="<%= card ? (card.website || '') : '' %>" placeholder="https://example.com">
-            </div>
-            <div class="form-group">
-              <label for="phone_us">US Phone</label>
-              <input type="tel" id="phone_us" name="phone_us" value="<%= card ? (card.phone_us || '') : '' %>" placeholder="(305) 491-6688">
-            </div>
-            <div class="form-group">
-              <label for="phone_intl">International / WhatsApp</label>
-              <input type="tel" id="phone_intl" name="phone_intl" value="<%= card ? (card.phone_intl || '') : '' %>" placeholder="+351 939 995 889">
-            </div>
-            <div class="form-group full">
               <label for="location">Location</label>
               <input type="text" id="location" name="location" value="<%= card ? (card.location || '') : '' %>" placeholder="Miami Beach, FL">
+            </div>
+          </div>
+
+          <!-- Emails -->
+          <div style="margin-top:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+              <label style="font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:#6c757d;">Email Addresses</label>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="addEmail()"><i class="fas fa-plus"></i> Add Email</button>
+            </div>
+            <div id="emails-container">
+              <% const emails = (card && card.emails) ? (typeof card.emails === 'string' ? JSON.parse(card.emails) : card.emails) : []; %>
+              <% if (emails.length === 0) { %>
+                <div class="multi-row" data-type="email">
+                  <input type="text" name="email_label[]" placeholder="Label (e.g. Work)" value="Work" class="multi-label">
+                  <input type="email" name="email_value[]" placeholder="email@example.com" class="multi-value">
+                  <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)"><i class="fas fa-times"></i></button>
+                </div>
+              <% } else { %>
+                <% emails.forEach(e => { %>
+                  <div class="multi-row" data-type="email">
+                    <input type="text" name="email_label[]" placeholder="Label" value="<%= e.label || '' %>" class="multi-label">
+                    <input type="email" name="email_value[]" placeholder="email@example.com" value="<%= e.value || '' %>" class="multi-value">
+                    <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)"><i class="fas fa-times"></i></button>
+                  </div>
+                <% }) %>
+              <% } %>
+            </div>
+          </div>
+
+          <!-- Phones -->
+          <div style="margin-top:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+              <label style="font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:#6c757d;">Phone Numbers</label>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="addPhone()"><i class="fas fa-plus"></i> Add Phone</button>
+            </div>
+            <div id="phones-container">
+              <% const phones = (card && card.phones) ? (typeof card.phones === 'string' ? JSON.parse(card.phones) : card.phones) : []; %>
+              <% if (phones.length === 0) { %>
+                <div class="multi-row" data-type="phone">
+                  <input type="text" name="phone_label[]" placeholder="Label (e.g. Mobile)" value="Mobile" class="multi-label">
+                  <input type="tel" name="phone_value[]" placeholder="+1 (305) 000-0000" class="multi-value">
+                  <label class="whatsapp-toggle"><input type="checkbox" name="phone_whatsapp[]"> <i class="fab fa-whatsapp"></i> WhatsApp</label>
+                  <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)"><i class="fas fa-times"></i></button>
+                </div>
+              <% } else { %>
+                <% phones.forEach(p => { %>
+                  <div class="multi-row" data-type="phone">
+                    <input type="text" name="phone_label[]" placeholder="Label" value="<%= p.label || '' %>" class="multi-label">
+                    <input type="tel" name="phone_value[]" placeholder="+1 (305) 000-0000" value="<%= p.value || '' %>" class="multi-value">
+                    <label class="whatsapp-toggle"><input type="checkbox" name="phone_whatsapp[]" <%= p.whatsapp ? 'checked' : '' %>> <i class="fab fa-whatsapp"></i> WhatsApp</label>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)"><i class="fas fa-times"></i></button>
+                  </div>
+                <% }) %>
+              <% } %>
             </div>
           </div>
         </div>
@@ -315,6 +357,11 @@
     .logo-option-img { max-width:90px; max-height:60px; object-fit:contain; }
     .logo-option.selected .logo-option-bg { border-color:#00a8e1; box-shadow:0 0 0 3px rgba(0,168,225,0.2); }
     .logo-option:hover .logo-option-bg { border-color:#00a8e1; }
+    .multi-row { display:flex; align-items:center; gap:8px; margin-bottom:8px; flex-wrap:wrap; }
+    .multi-label { width:130px; flex-shrink:0; }
+    .multi-value { flex:1; min-width:160px; }
+    .whatsapp-toggle { display:flex; align-items:center; gap:5px; font-size:13px; font-weight:500; color:#25d366; white-space:nowrap; cursor:pointer; }
+    .whatsapp-toggle input { accent-color:#25d366; }
   </style>
 
   <script>
@@ -375,6 +422,37 @@
       document.getElementById('logo-versions').style.display = 'flex';
       const placeholder = document.getElementById('logo-placeholder');
       if (placeholder) placeholder.style.display = 'none';
+    }
+
+    function addEmail() {
+      const container = document.getElementById('emails-container');
+      const row = document.createElement('div');
+      row.className = 'multi-row';
+      row.setAttribute('data-type', 'email');
+      row.innerHTML = `
+        <input type="text" name="email_label[]" placeholder="Label (e.g. Work)" value="Work" class="multi-label">
+        <input type="email" name="email_value[]" placeholder="email@example.com" class="multi-value">
+        <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)"><i class="fas fa-times"></i></button>
+      `;
+      container.appendChild(row);
+    }
+
+    function addPhone() {
+      const container = document.getElementById('phones-container');
+      const row = document.createElement('div');
+      row.className = 'multi-row';
+      row.setAttribute('data-type', 'phone');
+      row.innerHTML = `
+        <input type="text" name="phone_label[]" placeholder="Label (e.g. Mobile)" value="Mobile" class="multi-label">
+        <input type="tel" name="phone_value[]" placeholder="+1 (305) 000-0000" class="multi-value">
+        <label class="whatsapp-toggle"><input type="checkbox" name="phone_whatsapp[]"> <i class="fab fa-whatsapp"></i> WhatsApp</label>
+        <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)"><i class="fas fa-times"></i></button>
+      `;
+      container.appendChild(row);
+    }
+
+    function removeRow(btn) {
+      btn.closest('.multi-row').remove();
     }
 
     async function uploadInvertedLogo(input, cardId) {

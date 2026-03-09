@@ -7,6 +7,19 @@ const { verifyToken, requireAdmin } = require('../middleware/auth');
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
 
+function parseEmails(body) {
+  const labels = [].concat(body.email_label || []);
+  const values = [].concat(body.email_value || []);
+  return labels.map((l, i) => ({ label: l, value: values[i] })).filter(e => e.value);
+}
+
+function parsePhones(body) {
+  const labels = [].concat(body.phone_label || []);
+  const values = [].concat(body.phone_value || []);
+  const whatsapps = [].concat(body.phone_whatsapp || []);
+  return labels.map((l, i) => ({ label: l, value: values[i], whatsapp: whatsapps[i] === 'on' })).filter(p => p.value);
+}
+
 router.use(verifyToken, requireAdmin);
 
 // GET /admin — dashboard: list all cards
@@ -35,6 +48,9 @@ router.post('/cards/new', async (req, res) => {
     brand_name, brand_tagline, is_published
   } = req.body;
 
+  const emails = parseEmails(req.body);
+  const phones = parsePhones(req.body);
+
   try {
     // Check slug uniqueness
     const slugCheck = await db.query('SELECT id FROM cards WHERE slug = $1', [slug]);
@@ -59,13 +75,14 @@ router.post('/cards/new', async (req, res) => {
         user_id, slug, name, title, company, company_highlight,
         email, phone_us, phone_intl, website, location,
         linkedin, instagram, twitter, facebook, github, youtube, tiktok,
-        brand_name, brand_tagline, is_published
-      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21)
+        brand_name, brand_tagline, is_published, emails, phones
+      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23)
     `, [
       userId, slug, name, title, company, company_highlight,
       email, phone_us, phone_intl, website, location,
       linkedin, instagram, twitter, facebook, github, youtube, tiktok,
-      brand_name, brand_tagline, is_published === 'on'
+      brand_name, brand_tagline, is_published === 'on',
+      JSON.stringify(emails), JSON.stringify(phones)
     ]);
 
     res.redirect('/admin');
@@ -97,6 +114,9 @@ router.post('/cards/:id/edit', async (req, res) => {
     brand_name, brand_tagline, is_published, logo_invert, logo_size, new_password
   } = req.body;
 
+  const emails = parseEmails(req.body);
+  const phones = parsePhones(req.body);
+
   try {
     await db.query(`
       UPDATE cards SET
@@ -104,14 +124,15 @@ router.post('/cards/:id/edit', async (req, res) => {
         email=$6, phone_us=$7, phone_intl=$8, website=$9, location=$10,
         linkedin=$11, instagram=$12, twitter=$13, facebook=$14, github=$15,
         youtube=$16, tiktok=$17, brand_name=$18, brand_tagline=$19, is_published=$20,
-        logo_invert=$21, logo_size=$22
-      WHERE id=$23
+        logo_invert=$21, logo_size=$22, emails=$23, phones=$24
+      WHERE id=$25
     `, [
       slug, name, title, company, company_highlight,
       email, phone_us, phone_intl, website, location,
       linkedin, instagram, twitter, facebook, github, youtube, tiktok,
       brand_name, brand_tagline, is_published === 'on', logo_invert || '',
-      parseInt(logo_size) || 60, req.params.id
+      parseInt(logo_size) || 60, JSON.stringify(emails), JSON.stringify(phones),
+      req.params.id
     ]);
 
     // Optionally update client password
