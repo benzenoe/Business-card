@@ -110,7 +110,7 @@ router.post('/cards/:id/edit', async (req, res) => {
       slug, name, title, company, company_highlight,
       email, phone_us, phone_intl, website, location,
       linkedin, instagram, twitter, facebook, github, youtube, tiktok,
-      brand_name, brand_tagline, is_published === 'on', logo_invert === 'on',
+      brand_name, brand_tagline, is_published === 'on', logo_invert || '',
       req.params.id
     ]);
 
@@ -162,6 +162,19 @@ router.post('/cards/:id/upload-logo', upload.single('logo'), async (req, res) =>
     if (!req.file) return res.status(400).json({ error: 'No file provided' });
     const url = await uploadImage(req.file.buffer, 'business-cards/logos', `logo-${req.params.id}`);
     await db.query('UPDATE cards SET logo_url=$1 WHERE id=$2', [url, req.params.id]);
+    res.json({ url });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Upload failed' });
+  }
+});
+
+// POST /admin/cards/:id/upload-logo-inverted
+router.post('/cards/:id/upload-logo-inverted', upload.single('logo_inverted'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No file provided' });
+    const url = await uploadImage(req.file.buffer, 'business-cards/logos', `logo-inverted-${req.params.id}`);
+    await db.query('UPDATE cards SET logo_inverted_url=$1 WHERE id=$2', [url, req.params.id]);
     res.json({ url });
   } catch (err) {
     console.error(err);

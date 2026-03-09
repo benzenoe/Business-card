@@ -61,27 +61,44 @@
                 <span class="upload-status" id="headshot-status"></span>
               </div>
             </div>
-            <div class="form-group">
+            <div class="form-group" style="grid-column:1/-1;">
               <label>Brand Logo</label>
               <div class="upload-area">
-                <div id="logo-versions" style="display:<%= card.logo_url ? 'flex' : 'none' %>; gap:12px; margin-bottom:10px;">
-                  <div class="logo-option <%= !card.logo_invert ? 'selected' : '' %>" onclick="selectLogoVersion(false)" title="Original">
+                <input type="hidden" name="logo_invert" id="logo_invert" value="<%= card.logo_invert || '' %>">
+
+                <div id="logo-versions" style="display:<%= card.logo_url ? 'flex' : 'none' %>; gap:16px; flex-wrap:wrap; margin-bottom:12px; align-items:flex-end;">
+                  <div class="logo-option <%= (!card.logo_invert || card.logo_invert === '') ? 'selected' : '' %>" onclick="selectLogoVersion('')">
                     <div class="logo-option-label">Original</div>
                     <div class="logo-option-bg light">
                       <img src="<%= card.logo_url || '' %>" class="logo-option-img" id="logo-orig">
                     </div>
                   </div>
-                  <div class="logo-option <%= card.logo_invert ? 'selected' : '' %>" onclick="selectLogoVersion(true)" title="Inverted">
-                    <div class="logo-option-label">Inverted</div>
+                  <div class="logo-option <%= card.logo_invert === 'auto' ? 'selected' : '' %>" onclick="selectLogoVersion('auto')">
+                    <div class="logo-option-label">Auto Inverted</div>
                     <div class="logo-option-bg dark">
-                      <img src="<%= card.logo_url || '' %>" class="logo-option-img" style="filter:invert(1)" id="logo-inv">
+                      <img src="<%= card.logo_url || '' %>" class="logo-option-img" style="filter:invert(1)" id="logo-auto-inv">
                     </div>
                   </div>
+                  <div class="logo-option <%= card.logo_invert === 'custom' ? 'selected' : '' %>" onclick="selectLogoVersion('custom')">
+                    <div class="logo-option-label">Custom Inverted</div>
+                    <div class="logo-option-bg dark">
+                      <% if (card.logo_inverted_url) { %>
+                        <img src="<%= card.logo_inverted_url %>" class="logo-option-img" id="logo-custom-img">
+                      <% } else { %>
+                        <span id="logo-custom-img" style="font-size:11px;color:rgba(255,255,255,0.5);text-align:center;">Upload<br>below</span>
+                      <% } %>
+                    </div>
+                    <label for="logo-inverted-input" class="btn btn-secondary btn-sm" style="cursor:pointer; margin-top:6px; font-size:11px;">
+                      <i class="fas fa-upload"></i> Upload
+                    </label>
+                    <input type="file" id="logo-inverted-input" accept="image/*" style="display:none" onchange="uploadInvertedLogo(this)">
+                    <span class="upload-status" id="logo-inverted-status"></span>
+                  </div>
                 </div>
+
                 <% if (!card.logo_url) { %>
                   <div class="upload-placeholder" id="logo-placeholder"><i class="fas fa-image"></i></div>
                 <% } %>
-                <input type="hidden" name="logo_invert" id="logo_invert" value="<%= card.logo_invert ? 'on' : '' %>">
                 <label for="logo-input" class="btn btn-secondary btn-sm" style="cursor:pointer;">
                   <i class="fas fa-upload"></i> Upload Logo
                 </label>
@@ -261,19 +278,51 @@
       }
     }
 
-    function selectLogoVersion(invert) {
-      document.getElementById('logo_invert').value = invert ? 'on' : '';
-      document.querySelectorAll('.logo-option').forEach((el, i) => {
-        el.classList.toggle('selected', i === (invert ? 1 : 0));
+    function selectLogoVersion(val) {
+      document.getElementById('logo_invert').value = val;
+      document.querySelectorAll('.logo-option').forEach(el => {
+        el.classList.toggle('selected', el.getAttribute('onclick') === `selectLogoVersion('${val}')`);
       });
     }
 
     function showLogoPreviews(url) {
       document.getElementById('logo-orig').src = url;
-      document.getElementById('logo-inv').src = url;
+      document.getElementById('logo-auto-inv').src = url;
       document.getElementById('logo-versions').style.display = 'flex';
       const placeholder = document.getElementById('logo-placeholder');
       if (placeholder) placeholder.style.display = 'none';
+    }
+
+    async function uploadInvertedLogo(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const statusEl = document.getElementById('logo-inverted-status');
+      statusEl.textContent = 'Uploading...';
+      statusEl.className = 'upload-status loading';
+      const formData = new FormData();
+      formData.append('logo_inverted', file);
+      try {
+        const res = await fetch('/dashboard/upload-logo-inverted', { method: 'POST', body: formData });
+        const data = await res.json();
+        if (data.url) {
+          const imgEl = document.getElementById('logo-custom-img');
+          if (imgEl.tagName === 'IMG') {
+            imgEl.src = data.url;
+          } else {
+            const img = document.createElement('img');
+            img.src = data.url;
+            img.className = 'logo-option-img';
+            img.id = 'logo-custom-img';
+            imgEl.replaceWith(img);
+          }
+          selectLogoVersion('custom');
+          statusEl.textContent = '✓ Uploaded';
+          statusEl.className = 'upload-status success';
+        } else throw new Error(data.error);
+      } catch(err) {
+        statusEl.textContent = '✗ ' + err.message;
+        statusEl.className = 'upload-status error';
+      }
     }
   </script>
 </body>

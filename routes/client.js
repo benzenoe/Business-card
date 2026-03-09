@@ -37,7 +37,7 @@ router.post('/edit', async (req, res) => {
       name, title, company, company_highlight,
       email, phone_us, phone_intl, website, location,
       linkedin, instagram, twitter, facebook, github, youtube, tiktok,
-      brand_name, brand_tagline, logo_invert === 'on', req.user.id
+      brand_name, brand_tagline, logo_invert || '', req.user.id
     ]);
 
     const result = await db.query('SELECT * FROM cards WHERE user_id=$1', [req.user.id]);
@@ -72,6 +72,21 @@ router.post('/upload-logo', upload.single('logo'), async (req, res) => {
     if (!card.rows[0]) return res.status(404).json({ error: 'Card not found' });
     const url = await uploadImage(req.file.buffer, 'business-cards/logos', `logo-${card.rows[0].id}`);
     await db.query('UPDATE cards SET logo_url=$1 WHERE user_id=$2', [url, req.user.id]);
+    res.json({ url });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Upload failed' });
+  }
+});
+
+// POST /dashboard/upload-logo-inverted
+router.post('/upload-logo-inverted', upload.single('logo_inverted'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No file provided' });
+    const card = await db.query('SELECT id FROM cards WHERE user_id=$1', [req.user.id]);
+    if (!card.rows[0]) return res.status(404).json({ error: 'Card not found' });
+    const url = await uploadImage(req.file.buffer, 'business-cards/logos', `logo-inverted-${card.rows[0].id}`);
+    await db.query('UPDATE cards SET logo_inverted_url=$1 WHERE user_id=$2', [url, req.user.id]);
     res.json({ url });
   } catch (err) {
     console.error(err);
