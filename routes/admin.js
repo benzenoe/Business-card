@@ -124,7 +124,9 @@ router.post('/cards/:id/edit', async (req, res) => {
     res.render('admin/edit-card', { card: result.rows[0], clientEmail: result.rows[0].client_email, error: null, success: 'Card updated successfully.' });
   } catch (err) {
     console.error(err);
-    res.render('admin/edit-card', { card: req.body, clientEmail: '', error: 'Error updating card.', success: null });
+    const cardData = { ...req.body, id: req.params.id };
+    const clientRow = await db.query('SELECT u.email as client_email FROM cards c JOIN users u ON c.user_id = u.id WHERE c.id = $1', [req.params.id]).catch(() => ({ rows: [] }));
+    res.render('admin/edit-card', { card: cardData, clientEmail: clientRow.rows[0]?.client_email || '', error: 'Error updating card.', success: null });
   }
 });
 
