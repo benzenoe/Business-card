@@ -107,6 +107,14 @@
               </div>
             </div>
           </div>
+          <div style="margin-top:16px;">
+            <label style="font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:#6c757d;">Logo Size: <span id="logo-size-label"><%= card.logo_size || 60 %>px</span></label>
+            <div style="display:flex; align-items:center; gap:12px; margin-top:8px;">
+              <span style="font-size:11px; color:#adb5bd;">Small</span>
+              <input type="range" id="logo_size_range" name="logo_size" min="30" max="150" value="<%= card.logo_size || 60 %>" style="flex:1; accent-color:#00a8e1;" oninput="updateLogoSize(this.value)">
+              <span style="font-size:11px; color:#adb5bd;">Large</span>
+            </div>
+          </div>
           <p style="font-size:12px; color:#6c757d; margin-top:8px;"><i class="fas fa-info-circle"></i> Images are saved immediately on upload. Max 5MB.</p>
         </div>
 
@@ -276,6 +284,13 @@
         statusEl.textContent = '✗ ' + err.message;
         statusEl.className = 'upload-status error';
       }
+    }
+
+    function updateLogoSize(val) {
+      document.getElementById('logo-size-label').textContent = val + 'px';
+      document.querySelectorAll('.logo-option-img').forEach(img => {
+        img.style.maxHeight = val + 'px';
+      });
     }
 
     function selectLogoVersion(val) {

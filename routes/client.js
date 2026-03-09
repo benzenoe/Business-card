@@ -22,7 +22,7 @@ router.post('/edit', async (req, res) => {
     name, title, company, company_highlight,
     email, phone_us, phone_intl, website, location,
     linkedin, instagram, twitter, facebook, github, youtube, tiktok,
-    brand_name, brand_tagline, logo_invert
+    brand_name, brand_tagline, logo_invert, logo_size
   } = req.body;
 
   try {
@@ -31,13 +31,15 @@ router.post('/edit', async (req, res) => {
         name=$1, title=$2, company=$3, company_highlight=$4,
         email=$5, phone_us=$6, phone_intl=$7, website=$8, location=$9,
         linkedin=$10, instagram=$11, twitter=$12, facebook=$13, github=$14,
-        youtube=$15, tiktok=$16, brand_name=$17, brand_tagline=$18, logo_invert=$19
-      WHERE user_id=$20
+        youtube=$15, tiktok=$16, brand_name=$17, brand_tagline=$18, logo_invert=$19,
+        logo_size=$20
+      WHERE user_id=$21
     `, [
       name, title, company, company_highlight,
       email, phone_us, phone_intl, website, location,
       linkedin, instagram, twitter, facebook, github, youtube, tiktok,
-      brand_name, brand_tagline, logo_invert || '', req.user.id
+      brand_name, brand_tagline, logo_invert || '', parseInt(logo_size) || 60,
+      req.user.id
     ]);
 
     const result = await db.query('SELECT * FROM cards WHERE user_id=$1', [req.user.id]);
