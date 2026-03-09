@@ -209,14 +209,14 @@
               <% if (websites.length === 0) { %>
                 <div class="multi-row" data-type="website">
                   <input type="text" name="website_label[]" placeholder="Label (e.g. Main)" value="Website" class="multi-label">
-                  <input type="url" name="website_value[]" placeholder="https://example.com" class="multi-value">
+                  <input type="text" name="website_value[]" placeholder="https://example.com" class="multi-value website-url" onblur="fixUrl(this)">
                   <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)"><i class="fas fa-times"></i></button>
                 </div>
               <% } else { %>
                 <% websites.forEach(w => { %>
                   <div class="multi-row" data-type="website">
                     <input type="text" name="website_label[]" placeholder="Label" value="<%= w.label || '' %>" class="multi-label">
-                    <input type="url" name="website_value[]" placeholder="https://example.com" value="<%= w.value || '' %>" class="multi-value">
+                    <input type="text" name="website_value[]" placeholder="https://example.com" value="<%= w.value || '' %>" class="multi-value website-url" onblur="fixUrl(this)">
                     <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)"><i class="fas fa-times"></i></button>
                   </div>
                 <% }) %>
@@ -480,11 +480,20 @@
       row.setAttribute('data-type', 'website');
       row.innerHTML = `
         <input type="text" name="website_label[]" placeholder="Label (e.g. Blog)" value="Website" class="multi-label">
-        <input type="url" name="website_value[]" placeholder="https://example.com" class="multi-value">
+        <input type="text" name="website_value[]" placeholder="https://example.com" class="multi-value website-url" onblur="fixUrl(this)">
         <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)"><i class="fas fa-times"></i></button>
       `;
       container.appendChild(row);
     }
+
+    function fixUrl(input) {
+      const v = input.value.trim();
+      if (v && !v.match(/^https?:\/\//i)) {
+        input.value = 'https://' + v;
+      }
+    }
+
+    document.querySelectorAll('.website-url').forEach(el => el.addEventListener('blur', () => fixUrl(el)));
 
     function removeRow(btn) {
       btn.closest('.multi-row').remove();
