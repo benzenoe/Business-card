@@ -191,14 +191,36 @@
         <!-- Contact Info -->
         <div class="form-section">
           <div class="form-section-title"><i class="fas fa-address-book"></i> Contact</div>
-          <div class="form-grid">
-            <div class="form-group">
-              <label>Website</label>
-              <input type="url" name="website" value="<%= card ? (card.website || '') : '' %>" placeholder="https://example.com">
-            </div>
+          <div class="form-grid cols-1">
             <div class="form-group">
               <label for="location">Location</label>
               <input type="text" id="location" name="location" value="<%= card ? (card.location || '') : '' %>" placeholder="Miami Beach, FL">
+            </div>
+          </div>
+
+          <!-- Websites -->
+          <div style="margin-top:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+              <label style="font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:#6c757d;">Websites</label>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="addWebsite()"><i class="fas fa-plus"></i> Add Website</button>
+            </div>
+            <div id="websites-container">
+              <% const websites = (card && card.websites) ? (typeof card.websites === 'string' ? JSON.parse(card.websites) : card.websites) : []; %>
+              <% if (websites.length === 0) { %>
+                <div class="multi-row" data-type="website">
+                  <input type="text" name="website_label[]" placeholder="Label (e.g. Main)" value="Website" class="multi-label">
+                  <input type="url" name="website_value[]" placeholder="https://example.com" class="multi-value">
+                  <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)"><i class="fas fa-times"></i></button>
+                </div>
+              <% } else { %>
+                <% websites.forEach(w => { %>
+                  <div class="multi-row" data-type="website">
+                    <input type="text" name="website_label[]" placeholder="Label" value="<%= w.label || '' %>" class="multi-label">
+                    <input type="url" name="website_value[]" placeholder="https://example.com" value="<%= w.value || '' %>" class="multi-value">
+                    <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)"><i class="fas fa-times"></i></button>
+                  </div>
+                <% }) %>
+              <% } %>
             </div>
           </div>
 
@@ -446,6 +468,19 @@
         <input type="text" name="phone_label[]" placeholder="Label (e.g. Mobile)" value="Mobile" class="multi-label">
         <input type="tel" name="phone_value[]" placeholder="+1 (305) 000-0000" class="multi-value">
         <label class="whatsapp-toggle"><input type="checkbox" name="phone_whatsapp[]"> <i class="fab fa-whatsapp"></i> WhatsApp</label>
+        <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)"><i class="fas fa-times"></i></button>
+      `;
+      container.appendChild(row);
+    }
+
+    function addWebsite() {
+      const container = document.getElementById('websites-container');
+      const row = document.createElement('div');
+      row.className = 'multi-row';
+      row.setAttribute('data-type', 'website');
+      row.innerHTML = `
+        <input type="text" name="website_label[]" placeholder="Label (e.g. Blog)" value="Website" class="multi-label">
+        <input type="url" name="website_value[]" placeholder="https://example.com" class="multi-value">
         <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)"><i class="fas fa-times"></i></button>
       `;
       container.appendChild(row);

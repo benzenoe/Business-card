@@ -20,6 +20,12 @@ function parsePhones(body) {
   return labels.map((l, i) => ({ label: l, value: values[i], whatsapp: whatsapps[i] === 'on' })).filter(p => p.value);
 }
 
+function parseWebsites(body) {
+  const labels = [].concat(body.website_label || []);
+  const values = [].concat(body.website_value || []);
+  return labels.map((l, i) => ({ label: l, value: values[i] })).filter(w => w.value);
+}
+
 router.use(verifyToken, requireAdmin);
 
 // GET /admin — dashboard: list all cards
@@ -43,13 +49,14 @@ router.post('/cards/new', async (req, res) => {
   const {
     client_email, client_password, slug,
     name, title, company, company_highlight,
-    email, phone_us, phone_intl, website, location,
+    email, phone_us, phone_intl, location,
     linkedin, instagram, twitter, facebook, github, youtube, tiktok,
     brand_name, brand_tagline, is_published
   } = req.body;
 
   const emails = parseEmails(req.body);
   const phones = parsePhones(req.body);
+  const websites = parseWebsites(req.body);
 
   try {
     // Check slug uniqueness
@@ -73,16 +80,16 @@ router.post('/cards/new', async (req, res) => {
     await db.query(`
       INSERT INTO cards (
         user_id, slug, name, title, company, company_highlight,
-        email, phone_us, phone_intl, website, location,
+        email, phone_us, phone_intl, location,
         linkedin, instagram, twitter, facebook, github, youtube, tiktok,
-        brand_name, brand_tagline, is_published, emails, phones
+        brand_name, brand_tagline, is_published, emails, phones, websites
       ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23)
     `, [
       userId, slug, name, title, company, company_highlight,
-      email, phone_us, phone_intl, website, location,
+      email, phone_us, phone_intl, location,
       linkedin, instagram, twitter, facebook, github, youtube, tiktok,
       brand_name, brand_tagline, is_published === 'on',
-      JSON.stringify(emails), JSON.stringify(phones)
+      JSON.stringify(emails), JSON.stringify(phones), JSON.stringify(websites)
     ]);
 
     res.redirect('/admin');
@@ -109,30 +116,31 @@ router.get('/cards/:id/edit', async (req, res) => {
 router.post('/cards/:id/edit', async (req, res) => {
   const {
     slug, name, title, company, company_highlight,
-    email, phone_us, phone_intl, website, location,
+    email, phone_us, phone_intl, location,
     linkedin, instagram, twitter, facebook, github, youtube, tiktok,
     brand_name, brand_tagline, is_published, logo_invert, logo_size, new_password
   } = req.body;
 
   const emails = parseEmails(req.body);
   const phones = parsePhones(req.body);
+  const websites = parseWebsites(req.body);
 
   try {
     await db.query(`
       UPDATE cards SET
         slug=$1, name=$2, title=$3, company=$4, company_highlight=$5,
-        email=$6, phone_us=$7, phone_intl=$8, website=$9, location=$10,
-        linkedin=$11, instagram=$12, twitter=$13, facebook=$14, github=$15,
-        youtube=$16, tiktok=$17, brand_name=$18, brand_tagline=$19, is_published=$20,
-        logo_invert=$21, logo_size=$22, emails=$23, phones=$24
+        email=$6, phone_us=$7, phone_intl=$8, location=$9,
+        linkedin=$10, instagram=$11, twitter=$12, facebook=$13, github=$14,
+        youtube=$15, tiktok=$16, brand_name=$17, brand_tagline=$18, is_published=$19,
+        logo_invert=$20, logo_size=$21, emails=$22, phones=$23, websites=$24
       WHERE id=$25
     `, [
       slug, name, title, company, company_highlight,
-      email, phone_us, phone_intl, website, location,
+      email, phone_us, phone_intl, location,
       linkedin, instagram, twitter, facebook, github, youtube, tiktok,
       brand_name, brand_tagline, is_published === 'on', logo_invert || '',
       parseInt(logo_size) || 60, JSON.stringify(emails), JSON.stringify(phones),
-      req.params.id
+      JSON.stringify(websites), req.params.id
     ]);
 
     // Optionally update client password
