@@ -110,6 +110,17 @@
     .contact-item-stacked .contact-row a { font-size: 18px; font-weight: 500; color: var(--white); text-decoration: none; transition: color 0.2s; }
     .contact-item-stacked .contact-row a:hover { color: var(--bright-blue); }
 
+    .whatsapp-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      margin-top: 6px;
+      background: #25D366; color: #fff;
+      padding: 3px 10px; border-radius: 20px;
+      font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+      text-decoration: none; transition: filter 0.2s;
+    }
+    .whatsapp-badge:hover { filter: brightness(0.9); }
+    .whatsapp-badge i { font-size: 13px; }
+
     /* Buttons */
     .cta-button {
       display: block; width: 100%; padding: 18px 32px;
@@ -244,14 +255,14 @@
         <div class="contact-item-stacked">
           <span class="contact-label"><%= p.label %></span>
           <div class="contact-row">
-            <% if (p.whatsapp) { %>
-              <i class="fab fa-whatsapp"></i>
-              <a href="https://wa.me/<%= (p.value || '').replace(/\D/g,'') %>"><%= p.value %></a>
-            <% } else { %>
-              <i class="fas fa-phone"></i>
-              <a href="tel:<%= (p.value || '').replace(/\D/g,'') %>"><%= p.value %></a>
-            <% } %>
+            <i class="fas fa-phone"></i>
+            <a href="tel:<%= (p.value || '').replace(/\D/g,'') %>"><%= p.value %></a>
           </div>
+          <% if (p.whatsapp) { %>
+            <a class="whatsapp-badge" href="https://wa.me/<%= (p.value || '').replace(/\D/g,'') %>" target="_blank">
+              <i class="fab fa-whatsapp"></i> WhatsApp
+            </a>
+          <% } %>
         </div>
       <% }) %>
 
