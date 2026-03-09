@@ -64,83 +64,89 @@
         <% if (card && card.id) { %>
         <div class="form-section">
           <div class="form-section-title"><i class="fas fa-images"></i> Images</div>
-          <div class="form-grid">
+
+          <div class="images-layout">
             <!-- Headshot -->
-            <div class="form-group">
-              <label>Headshot Photo</label>
-              <div class="upload-area" id="headshot-area">
+            <div class="image-block">
+              <label class="image-block-label">Headshot Photo</label>
+              <div class="upload-area">
                 <% if (card.headshot_url) { %>
-                  <img src="<%= card.headshot_url %>" id="headshot-preview" class="upload-preview round">
+                  <img src="<%= card.headshot_url %>" id="headshot-preview" class="headshot-preview">
                 <% } else { %>
-                  <div class="upload-placeholder" id="headshot-preview"><i class="fas fa-user"></i></div>
+                  <div class="upload-placeholder round" id="headshot-preview"><i class="fas fa-user"></i></div>
                 <% } %>
-                <label for="headshot-input" class="btn btn-secondary btn-sm" style="cursor:pointer; margin-top:10px;">
+                <label for="headshot-input" class="btn btn-secondary btn-sm" style="cursor:pointer;">
                   <i class="fas fa-upload"></i> Upload Photo
                 </label>
                 <input type="file" id="headshot-input" accept="image/*" style="display:none" onchange="uploadImage(this, 'headshot', '<%= card.id %>')">
                 <span class="upload-status" id="headshot-status"></span>
               </div>
             </div>
-            <!-- Logo -->
-            <div class="form-group" style="grid-column:1/-1;">
-              <label>Brand Logo</label>
-              <div class="upload-area" id="logo-area">
-                <input type="hidden" name="logo_invert" id="logo_invert" value="<%= card.logo_invert || '' %>">
 
-                <div id="logo-versions" style="display:<%= card.logo_url ? 'flex' : 'none' %>; gap:16px; flex-wrap:wrap; margin-bottom:12px; align-items:flex-end;">
-                  <!-- Original -->
-                  <div class="logo-option <%= (!card.logo_invert || card.logo_invert === '') ? 'selected' : '' %>" onclick="selectLogoVersion('')">
-                    <div class="logo-option-label">Original</div>
-                    <div class="logo-option-bg light">
-                      <img src="<%= card.logo_url || '' %>" class="logo-option-img" id="logo-orig">
-                    </div>
-                  </div>
-                  <!-- Auto Inverted -->
-                  <div class="logo-option <%= card.logo_invert === 'auto' ? 'selected' : '' %>" onclick="selectLogoVersion('auto')">
-                    <div class="logo-option-label">Auto Inverted</div>
-                    <div class="logo-option-bg dark">
-                      <img src="<%= card.logo_url || '' %>" class="logo-option-img" style="filter:invert(1)" id="logo-auto-inv">
-                    </div>
-                  </div>
-                  <!-- Custom Inverted -->
-                  <div class="logo-option <%= card.logo_invert === 'custom' ? 'selected' : '' %>" onclick="selectLogoVersion('custom')">
-                    <div class="logo-option-label">Custom Inverted</div>
-                    <div class="logo-option-bg dark" id="logo-custom-bg">
-                      <% if (card.logo_inverted_url) { %>
-                        <img src="<%= card.logo_inverted_url %>" class="logo-option-img" id="logo-custom-img">
-                      <% } else { %>
-                        <span id="logo-custom-img" style="font-size:11px;color:rgba(255,255,255,0.5);text-align:center;">Upload<br>below</span>
-                      <% } %>
-                    </div>
-                    <label for="logo-inverted-input" class="btn btn-secondary btn-sm" style="cursor:pointer; margin-top:6px; font-size:11px;">
-                      <i class="fas fa-upload"></i> Upload
-                    </label>
-                    <input type="file" id="logo-inverted-input" accept="image/*" style="display:none" onchange="uploadInvertedLogo(this, '<%= card.id %>')">
-                    <span class="upload-status" id="logo-inverted-status"></span>
+            <!-- Logo -->
+            <div class="image-block logo-block">
+              <label class="image-block-label">Brand Logo</label>
+              <input type="hidden" name="logo_invert" id="logo_invert" value="<%= card.logo_invert || '' %>">
+
+              <!-- 3 options -->
+              <div id="logo-versions" style="display:<%= card.logo_url ? 'flex' : 'none' %>; gap:12px; margin-bottom:12px;">
+                <div class="logo-option <%= (!card.logo_invert || card.logo_invert === '') ? 'selected' : '' %>" onclick="selectLogoVersion('')">
+                  <div class="logo-option-label">Original</div>
+                  <div class="logo-option-bg light">
+                    <img src="<%= card.logo_url || '' %>" class="logo-option-img" id="logo-orig">
                   </div>
                 </div>
+                <div class="logo-option <%= card.logo_invert === 'auto' ? 'selected' : '' %>" onclick="selectLogoVersion('auto')">
+                  <div class="logo-option-label">Auto Inverted</div>
+                  <div class="logo-option-bg dark">
+                    <img src="<%= card.logo_url || '' %>" class="logo-option-img" style="filter:invert(1)" id="logo-auto-inv">
+                  </div>
+                </div>
+                <div class="logo-option <%= card.logo_invert === 'custom' ? 'selected' : '' %>" onclick="selectLogoVersion('custom')">
+                  <div class="logo-option-label">Custom Inverted</div>
+                  <div class="logo-option-bg dark">
+                    <% if (card.logo_inverted_url) { %>
+                      <img src="<%= card.logo_inverted_url %>" class="logo-option-img" id="logo-custom-img">
+                    <% } else { %>
+                      <span id="logo-custom-img" style="font-size:10px;color:rgba(255,255,255,0.5);text-align:center;line-height:1.3;">Upload<br>custom</span>
+                    <% } %>
+                  </div>
+                </div>
+              </div>
 
-                <% if (!card.logo_url) { %>
-                  <div class="upload-placeholder" id="logo-placeholder"><i class="fas fa-image"></i></div>
-                <% } %>
+              <% if (!card.logo_url) { %>
+                <div class="upload-placeholder" id="logo-placeholder" style="margin-bottom:10px;"><i class="fas fa-image"></i></div>
+              <% } %>
+
+              <!-- Upload buttons row -->
+              <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
                 <label for="logo-input" class="btn btn-secondary btn-sm" style="cursor:pointer;">
                   <i class="fas fa-upload"></i> Upload Logo
                 </label>
                 <input type="file" id="logo-input" accept="image/*" style="display:none" onchange="uploadImage(this, 'logo', '<%= card.id %>')">
                 <span class="upload-status" id="logo-status"></span>
+                <% if (card.logo_url) { %>
+                  <label for="logo-inverted-input" class="btn btn-secondary btn-sm" style="cursor:pointer;">
+                    <i class="fas fa-upload"></i> Upload Custom Inverted
+                  </label>
+                  <input type="file" id="logo-inverted-input" accept="image/*" style="display:none" onchange="uploadInvertedLogo(this, '<%= card.id %>')">
+                  <span class="upload-status" id="logo-inverted-status"></span>
+                <% } %>
+              </div>
+
+              <!-- Size slider -->
+              <div style="margin-top:14px;">
+                <label style="font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:#6c757d;">Logo Size: <span id="logo-size-label"><%= card.logo_size || 60 %>px</span></label>
+                <div style="display:flex; align-items:center; gap:10px; margin-top:6px;">
+                  <span style="font-size:11px; color:#adb5bd;">S</span>
+                  <input type="range" name="logo_size" min="30" max="150" value="<%= card.logo_size || 60 %>" style="flex:1; accent-color:#00a8e1;" oninput="updateLogoSize(this.value)">
+                  <span style="font-size:11px; color:#adb5bd;">L</span>
+                </div>
               </div>
             </div>
           </div>
-          <!-- Logo Size -->
-          <div style="margin-top:16px;">
-            <label style="font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:#6c757d;">Logo Size: <span id="logo-size-label"><%= card.logo_size || 60 %>px</span></label>
-            <div style="display:flex; align-items:center; gap:12px; margin-top:8px;">
-              <span style="font-size:11px; color:#adb5bd;">Small</span>
-              <input type="range" id="logo_size_range" name="logo_size" min="30" max="150" value="<%= card.logo_size || 60 %>" style="flex:1; accent-color:#00a8e1;" oninput="updateLogoSize(this.value)">
-              <span style="font-size:11px; color:#adb5bd;">Large</span>
-            </div>
-          </div>
-          <p style="font-size:12px; color:#6c757d; margin-top:8px;"><i class="fas fa-info-circle"></i> Images are saved immediately on upload. Max 5MB.</p>
+
+          <p style="font-size:12px; color:#6c757d; margin-top:12px;"><i class="fas fa-info-circle"></i> Images are saved immediately on upload. Max 5MB.</p>
         </div>
         <% } %>
 
@@ -290,14 +296,19 @@
 
   <style>
     .upload-area { display:flex; flex-direction:column; align-items:flex-start; gap:8px; }
-    .upload-preview { width:120px; height:120px; object-fit:cover; border-radius:50%; border:2px solid #e9ecef; }
+    .images-layout { display:flex; gap:40px; align-items:flex-start; flex-wrap:wrap; }
+    .image-block { display:flex; flex-direction:column; gap:10px; }
+    .image-block-label { font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:#6c757d; }
+    .headshot-preview { width:120px; height:120px; border-radius:50%; object-fit:cover; border:2px solid #e9ecef; }
     .upload-placeholder { width:120px; height:120px; border-radius:8px; border:2px dashed #dee2e6; display:flex; align-items:center; justify-content:center; font-size:32px; color:#adb5bd; background:#f8f9fa; }
+    .upload-placeholder.round { border-radius:50%; }
     .upload-status { font-size:12px; font-weight:500; }
     .upload-status.success { color:#28a745; }
     .upload-status.error { color:#dc3545; }
     .upload-status.loading { color:#00a8e1; }
+    .logo-block { flex:1; min-width:300px; }
     .logo-option { display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; }
-    .logo-option-label { font-size:11px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; color:#6c757d; }
+    .logo-option-label { font-size:11px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; color:#6c757d; white-space:nowrap; }
     .logo-option-bg { width:110px; height:80px; border-radius:8px; display:flex; align-items:center; justify-content:center; border:2px solid #e9ecef; padding:8px; transition:border-color 0.2s; }
     .logo-option-bg.light { background:#ffffff; }
     .logo-option-bg.dark { background:#1a3e5c; }
