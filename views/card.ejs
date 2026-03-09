@@ -191,7 +191,8 @@
     <% if (card.logo_url || card.brand_name) { %>
       <div class="brand-header">
         <% if (card.logo_url) { %>
-          <img src="<%= card.logo_url %>" alt="<%= card.brand_name || 'Logo' %>" style="max-height:60px; max-width:200px; object-fit:contain;">
+          <% const logoUrl = card.logo_invert ? card.logo_url.replace('/upload/', '/upload/e_negate/') : card.logo_url; %>
+          <img src="<%= logoUrl %>" alt="<%= card.brand_name || 'Logo' %>" style="max-height:60px; max-width:200px; object-fit:contain;">
         <% } else if (card.brand_name) { %>
           <% if (card.company_highlight && card.brand_name.includes(card.company_highlight)) {
             const parts = card.brand_name.split(card.company_highlight);

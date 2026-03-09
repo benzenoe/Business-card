@@ -94,7 +94,7 @@ router.post('/cards/:id/edit', async (req, res) => {
     slug, name, title, company, company_highlight,
     email, phone_us, phone_intl, website, location,
     linkedin, instagram, twitter, facebook, github, youtube, tiktok,
-    brand_name, brand_tagline, is_published, new_password
+    brand_name, brand_tagline, is_published, logo_invert, new_password
   } = req.body;
 
   try {
@@ -103,13 +103,14 @@ router.post('/cards/:id/edit', async (req, res) => {
         slug=$1, name=$2, title=$3, company=$4, company_highlight=$5,
         email=$6, phone_us=$7, phone_intl=$8, website=$9, location=$10,
         linkedin=$11, instagram=$12, twitter=$13, facebook=$14, github=$15,
-        youtube=$16, tiktok=$17, brand_name=$18, brand_tagline=$19, is_published=$20
-      WHERE id=$21
+        youtube=$16, tiktok=$17, brand_name=$18, brand_tagline=$19, is_published=$20,
+        logo_invert=$21
+      WHERE id=$22
     `, [
       slug, name, title, company, company_highlight,
       email, phone_us, phone_intl, website, location,
       linkedin, instagram, twitter, facebook, github, youtube, tiktok,
-      brand_name, brand_tagline, is_published === 'on',
+      brand_name, brand_tagline, is_published === 'on', logo_invert === 'on',
       req.params.id
     ]);
 
