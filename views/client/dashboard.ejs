@@ -285,7 +285,7 @@
               </div>
             </div>
             <div class="form-group">
-              <label>Accent Bar</label>
+              <label>Accent Color (bar, divider, labels)</label>
               <div style="display:flex;align-items:center;gap:8px;">
                 <input type="color" name="accent_bar_color" id="accent_bar_color" value="<%= card ? (card.accent_bar_color || '#00a8e1') : '#00a8e1' %>" oninput="updatePreview()">
                 <input type="text" id="accent_bar_color_hex" value="<%= card ? (card.accent_bar_color || '#00a8e1') : '#00a8e1' %>" style="width:90px;" oninput="syncColor('accent_bar_color',this.value)">
