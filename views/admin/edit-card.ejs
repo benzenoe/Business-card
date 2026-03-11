@@ -306,6 +306,9 @@
             </div>
           </div>
 
+          <!-- Hidden secondary_color to preserve it on save -->
+          <input type="hidden" name="secondary_color" value="<%= card ? (card.secondary_color || '#1a3e5c') : '#1a3e5c' %>">
+
           <!-- Color pickers -->
           <div class="form-grid">
             <div class="form-group">
@@ -341,12 +344,12 @@
           <!-- Live preview -->
           <div style="margin-top:16px;">
             <label style="font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:#6c757d; display:block; margin-bottom:8px;">Preview</label>
-            <div id="design-preview" style="width:180px;height:100px;border-radius:8px;position:relative;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.2);">
+            <div id="design-preview" style="width:180px;height:100px;border-radius:8px;position:relative;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.2); border:1px solid #e9ecef;">
               <div id="preview-bg" style="position:absolute;inset:0;"></div>
               <div id="preview-bar" style="position:absolute;left:0;top:0;width:4px;height:100%;"></div>
               <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;">
                 <div id="preview-dot" style="width:28px;height:28px;border-radius:50%;border:2px solid;"></div>
-                <div id="preview-line1" style="width:60px;height:4px;border-radius:2px;background:rgba(255,255,255,0.9);"></div>
+                <div id="preview-line1" style="width:60px;height:4px;border-radius:2px;"></div>
                 <div id="preview-line2" style="width:40px;height:3px;border-radius:2px;opacity:0.6;"></div>
               </div>
             </div>
@@ -631,11 +634,15 @@
       const bgStart = document.getElementById('bg_color_start').value;
       const bgEnd = document.getElementById('bg_color_end').value;
       const accent = document.getElementById('accent_bar_color').value;
+      const isLight = document.getElementById('light_theme').checked;
+      const textColor = isLight ? '#1a1a1a' : 'rgba(255,255,255,0.9)';
       document.getElementById('preview-bg').style.background = `linear-gradient(180deg, ${bgStart} 0%, ${bgEnd} 100%)`;
       document.getElementById('preview-bar').style.background = accent;
       document.getElementById('preview-dot').style.borderColor = primary;
+      document.getElementById('preview-line1').style.background = textColor;
       document.getElementById('preview-line2').style.background = primary;
     }
+    document.getElementById('light_theme').addEventListener('change', updatePreview);
 
     updatePreview();
   </script>
