@@ -83,15 +83,15 @@ router.post('/cards/new', async (req, res) => {
         email, phone_us, phone_intl, location,
         linkedin, instagram, twitter, facebook, github, youtube, tiktok,
         brand_name, brand_tagline, is_published, emails, phones, websites,
-        primary_color, secondary_color, bg_color_start, bg_color_end, accent_bar_color
-      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28)
+        primary_color, secondary_color, bg_color_start, bg_color_end, accent_bar_color, light_theme
+      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29)
     `, [
       userId, slug, name, title, company, company_highlight,
       email, phone_us, phone_intl, location,
       linkedin, instagram, twitter, facebook, github, youtube, tiktok,
       brand_name, brand_tagline, is_published === 'on',
       JSON.stringify(emails), JSON.stringify(phones), JSON.stringify(websites),
-      null, null, null, null, null
+      null, null, null, null, null, req.body.light_theme === 'on'
     ]);
 
     res.redirect('/admin');
@@ -136,8 +136,9 @@ router.post('/cards/:id/edit', async (req, res) => {
         linkedin=$10, instagram=$11, twitter=$12, facebook=$13, github=$14,
         youtube=$15, tiktok=$16, brand_name=$17, brand_tagline=$18, is_published=$19,
         logo_invert=$20, logo_size=$21, emails=$22, phones=$23,
-        websites=$24, primary_color=$25, secondary_color=$26, bg_color_start=$27, bg_color_end=$28, accent_bar_color=$29
-      WHERE id=$30
+        websites=$24, primary_color=$25, secondary_color=$26, bg_color_start=$27, bg_color_end=$28, accent_bar_color=$29,
+        light_theme=$30
+      WHERE id=$31
     `, [
       slug, name, title, company, company_highlight,
       email, phone_us, phone_intl, location,
@@ -145,7 +146,7 @@ router.post('/cards/:id/edit', async (req, res) => {
       brand_name, brand_tagline, is_published === 'on', logo_invert || '',
       parseInt(logo_size) || 60, JSON.stringify(emails), JSON.stringify(phones),
       JSON.stringify(websites), primary_color, secondary_color, bg_color_start, bg_color_end,
-      accent_bar_color, req.params.id
+      accent_bar_color, req.body.light_theme === 'on', req.params.id
     ]);
 
     // Optionally update client password
