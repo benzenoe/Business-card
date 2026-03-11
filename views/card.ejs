@@ -13,6 +13,8 @@
   <meta property="og:description" content="<% if (card.title) { %><%= card.title %><% } %>">
   <meta property="og:type" content="profile">
 
+  <link rel="manifest" href="/manifest/<%= card.slug %>.json">
+  <link rel="apple-touch-icon" href="<%= card.headshot_url || '' %>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -326,6 +328,11 @@
       <i class="fas fa-paper-plane"></i>Send My Card
     </button>
 
+    <!-- Add to Home Screen (shown by JS based on OS) -->
+    <button class="cta-secondary" id="install-btn" style="display:none;" onclick="handleInstall()">
+      <i id="install-icon" class="fas fa-plus-square"></i><span id="install-label">Add to Home Screen</span>
+    </button>
+
     <!-- Social Links -->
     <% const socials = [
       { key: 'linkedin', icon: 'fab fa-linkedin-in', label: 'LinkedIn' },
@@ -368,6 +375,37 @@
     <% } %>
   </div>
 
+  <!-- iOS Add to Home Screen modal -->
+  <div id="ios-modal" style="display:none; position:fixed; inset:0; z-index:200; align-items:flex-end; justify-content:center; background:rgba(0,0,0,0.5);">
+    <div style="background:#fff; color:#1a1a1a; border-radius:20px 20px 0 0; padding:28px 24px 36px; width:100%; max-width:420px; font-family:'Montserrat',sans-serif;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <span style="font-size:15px; font-weight:700; letter-spacing:0.03em;">Add to Home Screen</span>
+        <button onclick="document.getElementById('ios-modal').style.display='none'" style="background:none;border:none;font-size:22px;cursor:pointer;color:#888;line-height:1;">×</button>
+      </div>
+      <div style="display:flex; align-items:flex-start; gap:16px; margin-bottom:16px;">
+        <div style="background:var(--bright-blue);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <span style="font-size:20px;">1</span>
+        </div>
+        <div>
+          <p style="font-size:14px; font-weight:600; margin-bottom:4px;">Tap the Share button</p>
+          <p style="font-size:12px; color:#666;">Find <i class="fas fa-arrow-up-from-bracket"></i> at the bottom of your Safari browser</p>
+        </div>
+      </div>
+      <div style="display:flex; align-items:flex-start; gap:16px; margin-bottom:24px;">
+        <div style="background:var(--bright-blue);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <span style="font-size:20px;">2</span>
+        </div>
+        <div>
+          <p style="font-size:14px; font-weight:600; margin-bottom:4px;">Tap "Add to Home Screen"</p>
+          <p style="font-size:12px; color:#666;">Scroll down in the share sheet and tap <strong>Add to Home Screen</strong></p>
+        </div>
+      </div>
+      <div style="border-top:1px solid #eee; padding-top:16px; text-align:center;">
+        <p style="font-size:11px; color:#aaa; letter-spacing:0.05em; text-transform:uppercase;">Only available in Safari on iPhone & iPad</p>
+      </div>
+    </div>
+  </div>
+
   <div class="toast" id="toast"></div>
 
   <script>
@@ -397,6 +435,54 @@
         correctLevel: QRCode.CorrectLevel.H
       });
     });
+
+    // ── Add to Home Screen ──
+    (function() {
+      const ua = navigator.userAgent;
+      const isIOS = /iphone|ipad|ipod/i.test(ua);
+      const isAndroid = /android/i.test(ua);
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+      if (isStandalone) return; // already installed
+
+      if (isIOS) {
+        const btn = document.getElementById('install-btn');
+        document.getElementById('install-icon').className = 'fas fa-arrow-up-from-bracket';
+        document.getElementById('install-label').textContent = 'Add to Home Screen';
+        btn.style.display = 'block';
+      }
+
+      if (isAndroid) {
+        window.addEventListener('beforeinstallprompt', function(e) {
+          e.preventDefault();
+          window._pwaPrompt = e;
+          const btn = document.getElementById('install-btn');
+          document.getElementById('install-icon').className = 'fab fa-android';
+          document.getElementById('install-label').textContent = 'Add to Home Screen';
+          btn.style.display = 'block';
+        });
+      }
+    })();
+
+    function handleInstall() {
+      const ua = navigator.userAgent;
+      if (/iphone|ipad|ipod/i.test(ua)) {
+        document.getElementById('ios-modal').style.display = 'flex';
+      } else if (window._pwaPrompt) {
+        window._pwaPrompt.prompt();
+        window._pwaPrompt.userChoice.then(function(result) {
+          if (result.outcome === 'accepted') {
+            document.getElementById('install-btn').style.display = 'none';
+          }
+          window._pwaPrompt = null;
+        });
+      }
+    }
+
+    // Register service worker (required for Android PWA prompt)
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(function() {});
+    }
 
     function downloadVCard() {
       const v = `BEGIN:VCARD
