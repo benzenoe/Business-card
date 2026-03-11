@@ -27,6 +27,8 @@
       --bg-end: <%= card.bg_color_end || '#0d2233' %>;
       --accent: <%= card.accent_bar_color || '#00a8e1' %>;
       --white: <%= card.light_theme ? '#1a1a1a' : '#ffffff' %>;
+      --label-color: <%= card.label_color || card.accent_bar_color || '#00a8e1' %>;
+      --info-color: <%= card.info_color || (card.light_theme ? '#1a1a1a' : '#ffffff') %>;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -100,14 +102,14 @@
     }
 
     .contact-item i { color: var(--bright-blue); width: 24px; font-size: 18px; }
-    .contact-item a, .contact-item span { color: var(--white); text-decoration: none; transition: color 0.2s; }
+    .contact-item a, .contact-item span { color: var(--info-color); text-decoration: none; transition: color 0.2s; }
     .contact-item a:hover { color: var(--bright-blue); }
 
-    .contact-label { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); display: block; margin-bottom: 6px; }
+    .contact-label { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--label-color); display: block; margin-bottom: 6px; }
 
     .contact-item-stacked { display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; }
     .contact-item-stacked .contact-row { display: flex; align-items: center; gap: 12px; }
-    .contact-item-stacked .contact-row a { font-size: 18px; font-weight: 500; color: var(--white); text-decoration: none; transition: color 0.2s; }
+    .contact-item-stacked .contact-row a { font-size: 18px; font-weight: 500; color: var(--info-color); text-decoration: none; transition: color 0.2s; }
     .contact-item-stacked .contact-row a:hover { color: var(--bright-blue); }
 
     .whatsapp-badge {

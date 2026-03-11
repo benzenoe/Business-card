@@ -333,10 +333,25 @@
               </div>
             </div>
             <div class="form-group">
-              <label>Accent Color (bar, divider, labels)</label>
+              <label>Accent Color (bar, divider)</label>
               <div style="display:flex;align-items:center;gap:8px;">
                 <input type="color" name="accent_bar_color" id="accent_bar_color" value="<%= card ? (card.accent_bar_color || '#00a8e1') : '#00a8e1' %>" oninput="updatePreview()">
                 <input type="text" id="accent_bar_color_hex" value="<%= card ? (card.accent_bar_color || '#00a8e1') : '#00a8e1' %>" style="width:90px;" oninput="syncColor('accent_bar_color',this.value)">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Label Text Color <span style="font-size:10px;color:#adb5bd;">(MOBILE, COACHING…)</span></label>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <input type="color" name="label_color" id="label_color" value="<%= card ? (card.label_color || card.accent_bar_color || '#00a8e1') : '#00a8e1' %>">
+                <input type="text" id="label_color_hex" value="<%= card ? (card.label_color || card.accent_bar_color || '#00a8e1') : '#00a8e1' %>" style="width:90px;" oninput="syncColor('label_color',this.value)">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Info Text Color <span style="font-size:10px;color:#adb5bd;">(phone, email, URL…)</span></label>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <% const defaultInfoColor = card ? (card.info_color || (card.light_theme ? '#1a1a1a' : '#ffffff')) : '#ffffff'; %>
+                <input type="color" name="info_color" id="info_color" value="<%= defaultInfoColor %>">
+                <input type="text" id="info_color_hex" value="<%= defaultInfoColor %>" style="width:90px;" oninput="syncColor('info_color',this.value)">
               </div>
             </div>
           </div>

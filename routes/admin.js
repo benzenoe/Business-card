@@ -121,7 +121,8 @@ router.post('/cards/:id/edit', async (req, res) => {
     email, phone_us, phone_intl, location,
     linkedin, instagram, twitter, facebook, github, youtube, tiktok,
     brand_name, brand_tagline, is_published, logo_invert, logo_size, new_password,
-    primary_color, secondary_color, bg_color_start, bg_color_end, accent_bar_color
+    primary_color, secondary_color, bg_color_start, bg_color_end, accent_bar_color,
+    label_color, info_color
   } = req.body;
 
   const emails = parseEmails(req.body);
@@ -137,8 +138,8 @@ router.post('/cards/:id/edit', async (req, res) => {
         youtube=$15, tiktok=$16, brand_name=$17, brand_tagline=$18, is_published=$19,
         logo_invert=$20, logo_size=$21, emails=$22, phones=$23,
         websites=$24, primary_color=$25, secondary_color=$26, bg_color_start=$27, bg_color_end=$28, accent_bar_color=$29,
-        light_theme=$30
-      WHERE id=$31
+        light_theme=$30, label_color=$31, info_color=$32
+      WHERE id=$33
     `, [
       slug, name, title, company, company_highlight,
       email, phone_us, phone_intl, location,
@@ -146,7 +147,7 @@ router.post('/cards/:id/edit', async (req, res) => {
       brand_name, brand_tagline, is_published === 'on', logo_invert || '',
       parseInt(logo_size) || 60, JSON.stringify(emails), JSON.stringify(phones),
       JSON.stringify(websites), primary_color, secondary_color, bg_color_start, bg_color_end,
-      accent_bar_color, req.body.light_theme === 'on', req.params.id
+      accent_bar_color, req.body.light_theme === 'on', label_color || null, info_color || null, req.params.id
     ]);
 
     // Optionally update client password

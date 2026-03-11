@@ -42,7 +42,8 @@ router.post('/edit', async (req, res) => {
     email, phone_us, phone_intl, location,
     linkedin, instagram, twitter, facebook, github, youtube, tiktok,
     brand_name, brand_tagline, logo_invert, logo_size,
-    primary_color, secondary_color, bg_color_start, bg_color_end, accent_bar_color
+    primary_color, secondary_color, bg_color_start, bg_color_end, accent_bar_color,
+    label_color, info_color
   } = req.body;
 
   const emails = parseEmails(req.body);
@@ -58,8 +59,8 @@ router.post('/edit', async (req, res) => {
         youtube=$14, tiktok=$15, brand_name=$16, brand_tagline=$17, logo_invert=$18,
         logo_size=$19, emails=$20, phones=$21,
         websites=$22, primary_color=$23, secondary_color=$24, bg_color_start=$25, bg_color_end=$26, accent_bar_color=$27,
-        light_theme=$28
-      WHERE user_id=$29
+        light_theme=$28, label_color=$29, info_color=$30
+      WHERE user_id=$31
     `, [
       name, title, company, company_highlight,
       email, phone_us, phone_intl, location,
@@ -67,7 +68,7 @@ router.post('/edit', async (req, res) => {
       brand_name, brand_tagline, logo_invert || '', parseInt(logo_size) || 60,
       JSON.stringify(emails), JSON.stringify(phones), JSON.stringify(websites),
       primary_color, secondary_color, bg_color_start, bg_color_end, accent_bar_color,
-      req.body.light_theme === 'on', req.user.id
+      req.body.light_theme === 'on', label_color || null, info_color || null, req.user.id
     ]);
 
     const result = await db.query('SELECT * FROM cards WHERE user_id=$1', [req.user.id]);
